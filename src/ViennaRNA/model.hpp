@@ -303,7 +303,7 @@ struct vrna_md_s {
     double nc_fact; /**<  @brief  Scaling factor to weight co-variance contributions of
                        non-canonical pairs */
     double sfact;   /**<  @brief  Scaling factor for partition function scaling */
-    int rtype[8];   /**<  @brief  Reverse base pair type array */
+    unsigned int rtype[8];   /**<  @brief  Reverse base pair type array */
     short alias[MAXALPHA + 1]; /**<  @brief  alias of an integer nucleotide representation */
     int pair[MAXALPHA + 1][MAXALPHA + 1]; /**<  @brief  Integer representation of a base pair */
     float pair_dist[7][7]; /**<  @brief  Base pair dissimilarity, a.k.a. distance matrix */

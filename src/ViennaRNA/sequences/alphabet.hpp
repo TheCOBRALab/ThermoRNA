@@ -39,13 +39,17 @@ int vrna_nucleotide_IUPAC_identity(char a, char b);
  *  @return             A list of integer encodings for each sequence letter (1-based). Position 0
  * denotes the length of the list
  */
-short* vrna_seq_encode(const char* sequence, vrna_md_t* md);
+short* vrna_seq_encode(const char* sequence, const vrna_md_t* md);
 
 /**
  *  @brief Get a numerical representation of the nucleotide sequence (simple version)
  *
+ *  @param  sequence    The input sequence in upper-case letters
+ *  @param  md          A pointer to a #vrna_md_t data structure that specifies the conversion type
+ *  @return             A list of integer encodings for each sequence letter (1-based). Position 0
+ * denotes the length of the list
  */
-short* vrna_seq_encode_simple(const char* sequence, vrna_md_t* md);
+short* vrna_seq_encode_simple(const char* sequence, const vrna_md_t* md);
 
 /**
  *  @brief  Encode a nucleotide character to numerical value
@@ -59,7 +63,7 @@ short* vrna_seq_encode_simple(const char* sequence, vrna_md_t* md);
  *  @param  md  The model details that determine the kind of encoding
  *  @return     The encoded nucleotide
  */
-int vrna_nucleotide_encode(char c, vrna_md_t* md);
+int vrna_nucleotide_encode(char c, const vrna_md_t* md);
 
 /**
  *  @brief  Decode a numerical representation of a nucleotide back into nucleotide alphabet
@@ -73,15 +77,15 @@ int vrna_nucleotide_encode(char c, vrna_md_t* md);
  *  @param  md  The model details that determine the kind of decoding
  *  @return     The decoded nucleotide character
  */
-char vrna_nucleotide_decode(int enc, vrna_md_t* md);
+char vrna_nucleotide_decode(int enc, const vrna_md_t* md);
 
 void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, short** s3_p, char** ss_p,
-                     unsigned int** as_p, vrna_md_t* md);
+                     unsigned int** as_p, const vrna_md_t* md);
 
-unsigned int vrna_get_ptype_md(int i, int j, vrna_md_t* md);
+unsigned int vrna_get_ptype_md(int i, int j, const vrna_md_t* md);
 
-unsigned int vrna_get_ptype(int ij, char* ptype);
+unsigned int vrna_get_ptype(int ij, const char* ptype);
 
-unsigned int vrna_get_ptype_window(int i, int j, char** ptype);
+unsigned int vrna_get_ptype_window(int i, int j, const char** ptype);
 
 }  // namespace thermorna::viennarna

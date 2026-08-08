@@ -205,37 +205,24 @@ PUBLIC int vrna_params_load_from_string(const char* string, const char* name,
     return ret;
 }
 
-PUBLIC int vrna_params_load_defaults(void) { return vrna_params_load_RNA_Turner2004(); }
+PUBLIC int vrna_params_load_defaults(void) {
+    return vrna_params_load_RNA_Turner2004();
+}
 
 PUBLIC int vrna_params_load_RNA_Turner2004(void) {
-    return vrna_params_load_from_string("params/rna_turner2004.par", "RNA - Turner 2004", 0);
-}
-
-PUBLIC int vrna_params_load_RNA_Turner1999(void) {
-    return vrna_params_load_from_string("params/rna_turner1999.par", "RNA - Turner 1999", 0);
-}
-
-PUBLIC int vrna_params_load_RNA_Andronescu2007(void) {
-    return vrna_params_load_from_string("params/rna_andronescu2007.par", "RNA - Andronescu 2007",
-                                        0);
-}
-
-PUBLIC int vrna_params_load_RNA_Langdon2018(void) {
-    return vrna_params_load_from_string("params/rna_langdon2018.par", "RNA - Langdon 2018", 0);
-}
-
-PUBLIC int vrna_params_load_RNA_misc_special_hairpins(void) {
-    return vrna_params_load_from_string("params/rna_misc_special_hairpins.par",
-                                        "RNA - Misc. Special Hairpins", 0);
+    // Turner 2004 parameters are already compiled into ThermoRNA
+    // via the global tables in default.cpp.
+    //
+    // No external parameter file is required.
+    return 1;
 }
 
 PUBLIC int vrna_params_load_DNA_Mathews2004(void) {
-    return vrna_params_load_from_string("params/dna_mathews2004.par", "DNA - Mathews 2004", 0);
+    // Mathews 2004 DNA parameters are NOT compiled into ThermoRNA.
+    // There is no guaranteed built-in DNA parameter set.
+    return 0;
 }
 
-PUBLIC int vrna_params_load_DNA_Mathews1999(void) {
-    return vrna_params_load_from_string("params/dna_mathews1999.par", "DNA - Mathews 1999", 0);
-}
 
 #ifndef VRNA_DISABLE_BACKWARD_COMPATIBILITY
 

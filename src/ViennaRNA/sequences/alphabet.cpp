@@ -96,7 +96,7 @@ PUBLIC int vrna_nucleotide_IUPAC_identity(char nt, char mask) {
     return p ? 1 : 0;
 }
 
-PUBLIC short* vrna_seq_encode(const char* sequence, vrna_md_t* md) {
+PUBLIC short* vrna_seq_encode(const char* sequence, const vrna_md_t* md) {
     unsigned int i, l;
     short* S = NULL;
 
@@ -114,7 +114,7 @@ PUBLIC short* vrna_seq_encode(const char* sequence, vrna_md_t* md) {
     return S;
 }
 
-PUBLIC short* vrna_seq_encode_simple(const char* sequence, vrna_md_t* md) {
+PUBLIC short* vrna_seq_encode_simple(const char* sequence, const vrna_md_t* md) {
     unsigned int i, l;
     short* S = NULL;
 
@@ -132,7 +132,7 @@ PUBLIC short* vrna_seq_encode_simple(const char* sequence, vrna_md_t* md) {
     return S;
 }
 
-PUBLIC int vrna_nucleotide_encode(char c, vrna_md_t* md) {
+PUBLIC int vrna_nucleotide_encode(char c, const vrna_md_t* md) {
     /* return numerical representation of nucleotide used e.g. in vrna_md_t.pair[][] */
     int code = -1;
 
@@ -158,7 +158,7 @@ PUBLIC int vrna_nucleotide_encode(char c, vrna_md_t* md) {
     return code;
 }
 
-PUBLIC char vrna_nucleotide_decode(int enc, vrna_md_t* md) {
+PUBLIC char vrna_nucleotide_decode(int enc, const vrna_md_t* md) {
     if (md) {
         if (md->energy_set > 0)
             return static_cast<char>(enc + 'A' - 1);
@@ -170,7 +170,7 @@ PUBLIC char vrna_nucleotide_decode(int enc, vrna_md_t* md) {
 }
 
 PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, short** s3_p,
-                            char** ss_p, unsigned int** as_p, vrna_md_t* md) {
+                            char** ss_p, unsigned int** as_p, const vrna_md_t* md) {
     std::size_t i, l, p;
 
     l = strlen(sequence);
@@ -254,19 +254,19 @@ PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, sho
     }
 }
 
-PUBLIC unsigned int vrna_get_ptype_md(int i, int j, vrna_md_t* md) {
+PUBLIC unsigned int vrna_get_ptype_md(int i, int j, const vrna_md_t* md) {
     unsigned int tt = (unsigned int) md->pair[i][j];
 
     return (tt == 0) ? 7 : tt;
 }
 
-PUBLIC unsigned int vrna_get_ptype(int ij, char* ptype) {
+PUBLIC unsigned int vrna_get_ptype(int ij, const char* ptype) {
     unsigned int tt = (unsigned int) ptype[ij];
 
     return (tt == 0) ? 7 : tt;
 }
 
-PUBLIC unsigned int vrna_get_ptype_window(int i, int j, char** ptype) {
+PUBLIC unsigned int vrna_get_ptype_window(int i, int j, const char** ptype) {
     unsigned int tt = (unsigned int) ptype[i][j - i];
 
     return (tt == 0) ? 7 : tt;

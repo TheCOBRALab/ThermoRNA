@@ -113,79 +113,6 @@ int vrna_params_load_defaults(void);
  */
 int vrna_params_load_RNA_Turner2004(void);
 
-/**
- *  @brief  Load Turner 1999 RNA energy parameter set
- *
- *  @warning  This function also resets the default geometric parameters
- *            as stored in #vrna_md_t to those of RNA. Only subsequently
- *            initialized #vrna_md_t structures will be affected by this
- *            change.
- *
- *  @see  vrna_params_load(), vrna_params_load_from_string(),
- *        vrna_params_save(), vrna_params_load_RNA_Turner2004(),
- *        vrna_params_load_defaults(), vrna_params_load_RNA_Andronescu2007(),
- *        vrna_params_load_RNA_Langdon2018(), vrna_params_load_RNA_misc_special_hairpins(),
- *        vrna_params_load_DNA_Mathews2004(), vrna_params_load_DNA_Mathews1999()
- *
- *
- *  @return Non-zero on success, 0 on failure
- */
-int vrna_params_load_RNA_Turner1999(void);
-
-/**
- *  @brief  Load Andronsecu 2007 RNA energy parameter set
- *
- *  @warning  This function also resets the default geometric parameters
- *            as stored in #vrna_md_t to those of RNA. Only subsequently
- *            initialized #vrna_md_t structures will be affected by this
- *            change.
- *
- *  @see  vrna_params_load(), vrna_params_load_from_string(),
- *        vrna_params_save(), vrna_params_load_RNA_Turner2004(),
- *        vrna_params_load_RNA_Turner1999(), vrna_params_load_defaults(),
- *        vrna_params_load_RNA_Langdon2018(), vrna_params_load_RNA_misc_special_hairpins(),
- *        vrna_params_load_DNA_Mathews2004(), vrna_params_load_DNA_Mathews1999()
- *
- *  @return Non-zero on success, 0 on failure
- */
-int vrna_params_load_RNA_Andronescu2007(void);
-
-/**
- *  @brief  Load Langdon 2018 RNA energy parameter set
- *
- *  @warning  This function also resets the default geometric parameters
- *            as stored in #vrna_md_t to those of RNA. Only subsequently
- *            initialized #vrna_md_t structures will be affected by this
- *            change.
- *
- *  @see  vrna_params_load(), vrna_params_load_from_string(),
- *        vrna_params_save(), vrna_params_load_RNA_Turner2004(),
- *        vrna_params_load_RNA_Turner1999(), vrna_params_load_RNA_Andronescu2007(),
- *        vrna_params_load_defaults(), vrna_params_load_RNA_misc_special_hairpins(),
- *        vrna_params_load_DNA_Mathews2004(), vrna_params_load_DNA_Mathews1999()
- *
- *  @return Non-zero on success, 0 on failure
- */
-int vrna_params_load_RNA_Langdon2018(void);
-
-/**
- *  @brief  Load Misc Special Hairpin RNA energy parameter set
- *
- *  @warning  This function also resets the default geometric parameters
- *            as stored in #vrna_md_t to those of RNA. Only subsequently
- *            initialized #vrna_md_t structures will be affected by this
- *            change.
- *
- *  @see  vrna_params_load(), vrna_params_load_from_string(),
- *        vrna_params_save(), vrna_params_load_RNA_Turner2004(),
- *        vrna_params_load_RNA_Turner1999(), vrna_params_load_RNA_Andronescu2007(),
- *        vrna_params_load_RNA_Langdon2018(), vrna_params_load_defaults(),
- *        vrna_params_load_DNA_Mathews2004(), vrna_params_load_DNA_Mathews1999()
- *
- *
- *  @return Non-zero on success, 0 on failure
- */
-int vrna_params_load_RNA_misc_special_hairpins(void);
 
 /**
  *  @brief  Load Mathews 2004 DNA energy parameter set
@@ -206,24 +133,6 @@ int vrna_params_load_RNA_misc_special_hairpins(void);
  */
 int vrna_params_load_DNA_Mathews2004(void);
 
-/**
- *  @brief  Load Mathews 1999 DNA energy parameter set
- *
- *  @warning  This function also resets the default geometric parameters
- *            as stored in #vrna_md_t to those of DNA. Only subsequently
- *            initialized #vrna_md_t structures will be affected by this
- *            change.
- *
- *  @see  vrna_params_load(), vrna_params_load_from_string(),
- *        vrna_params_save(), vrna_params_load_RNA_Turner2004(),
- *        vrna_params_load_RNA_Turner1999(), vrna_params_load_RNA_Andronescu2007(),
- *        vrna_params_load_RNA_Langdon2018(), vrna_params_load_RNA_misc_special_hairpins(),
- *        vrna_params_load_DNA_Mathews2004(), vrna_params_load_defaults()
- *
- *
- *  @return Non-zero on success, 0 on failure
- */
-int vrna_params_load_DNA_Mathews1999(void);
 
 /**
  *  @brief
