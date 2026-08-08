@@ -16,8 +16,8 @@
 #include <stdbool.h>
 #include <cstdlib>
 
-#include "ViennaRNA/loading_params/utils.hpp"
-#include "ViennaRNA/loading_params/constants.hpp"
+#include "ViennaRNA/utils/utils.hpp"
+#include "ViennaRNA/loading_params/params/constants.hpp"
 #include "ViennaRNA/loading_params/params/default.hpp"
 #include "ViennaRNA/loading_params/io.hpp"
 
