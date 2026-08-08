@@ -1,8 +1,9 @@
 #pragma once
 
-namespace thermorna::viennarna {
-
+#include <algorithm> 
 #include <limits.h>
+
+namespace thermorna::viennarna {
 
 /** The gas constant */
 #define GASCONST 1.98717 /* in [cal/K] */

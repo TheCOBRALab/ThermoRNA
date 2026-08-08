@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(ThermoRNA
-    VERSION 0.1.1
+    VERSION 0.1.2
     LANGUAGES CXX
     DESCRIPTION "ThermoRNA: A C++ library for processing thermodynamic data of RNA structures and their energy calculations."
 )

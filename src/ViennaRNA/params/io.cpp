@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include <cstdlib>
+#include <algorithm>
 
 namespace thermorna::viennarna {
 

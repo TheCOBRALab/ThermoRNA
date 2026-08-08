@@ -7,6 +7,8 @@
 #include "ViennaRNA/params/default.hpp"
 #include "ViennaRNA/params/salt.hpp"
 
+#include <algorithm>
+
 namespace thermorna::viennarna {
 PUBLIC int vrna_E_internal(unsigned int n1, unsigned int n2, unsigned int type, unsigned int type_2,
                            int si1, int sj1, int sp1, int sq1, vrna_param_t* P) {
