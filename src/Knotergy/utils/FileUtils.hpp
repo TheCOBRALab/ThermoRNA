@@ -1,0 +1,83 @@
+#pragma once
+
+#include <sys/stat.h>
+
+#include <dirent.h>
+
+#include <cstdint>
+#include <fstream>
+#include <string>
+#include <vector>
+
+namespace thermorna::knotergy {
+
+/**
+ * @brief Utility functions for file system operations.
+ *
+ * Provides cross-platform file system operations without relying on C++17 filesystem
+ * (which is not fully supported in older macOS Conda packages).
+ *
+ * If you manage to get filesystem to compile in conda on older macOS versions,
+ * consider replacing this with std::filesystem.
+ */
+class FileUtils {
+   public:
+    [[nodiscard]] static std::string resolve_data_path(const std::string& path,
+                                                       bool check_exists = true);
+
+    [[nodiscard]] static std::string join_path(const std::string& base, const std::string& path);
+
+    /**
+     * @brief Check if a file or directory exists.
+     *
+     * @param name Path to check.
+     * @return True if the path exists.
+     */
+    [[nodiscard]] static bool file_exists(const std::string& name);
+
+    /**
+     * @brief Check if a path points to a regular file.
+     *
+     * @param name Path to check.
+     * @return True if the path is a regular file.
+     */
+    [[nodiscard]] static bool is_file(const std::string& name);
+
+    /**
+     * @brief Check if a path points to a directory.
+     *
+     * @param name Path to check.
+     * @return True if the path is a directory.
+     */
+    [[nodiscard]] static bool is_directory(const std::string& name);
+
+    /**
+     * @brief Get the modification time of a file as a uint64_t timestamp.
+     *
+     * @param path Path to the file.
+     * @return Modification time as uint64_t, or 0 if file doesn't exist or on error.
+     */
+    [[nodiscard]] static std::uint64_t get_file_mtime(const std::string& path);
+
+    /**
+     * @brief Get a list of files in a directory.
+     *
+     * @param dir Directory path to list.
+     * @param include_dirs Whether to include subdirectories in the result (default: false).
+     * @param recursive Whether to recursively list files in subdirectories (default: false).
+     * @return Vector of file paths.
+     */
+    [[nodiscard]] static std::vector<std::string> get_files_in_dir(const std::string& dir,
+                                                                   bool include_dirs = false,
+                                                                   bool recursive = false);
+
+    /**
+     * @brief Strip the extension from a filename.
+     *
+     * @param path Full file path.
+     * @return Filename without extension.
+     */
+    [[nodiscard]] static std::string strip_extension(const std::string& path);
+};
+
+}  // namespace knotergy
