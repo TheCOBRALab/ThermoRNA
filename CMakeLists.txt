@@ -1,5 +1,4 @@
-cmake_minimum_required(
-    VERSION 3.15)
+cmake_minimum_required(VERSION 3.15)
 
 project(ThermoRNA
     VERSION 0.1.0
@@ -27,6 +26,24 @@ message(STATUS "ThermoRNA components:")
 message(STATUS "  Knotergy:  ${THERMORNA_KNOTERGY}")
 message(STATUS "  ViennaRNA: ${THERMORNA_VIENNARNA}")
 
+# ------------------------- Configuration -------------------------
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Enable ThermoRNA warnings when built directly.
+# Disable them by default when ThermoRNA is consumed through FetchContent/add_subdirectory.
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(THERMORNA_WARNINGS_DEFAULT ON)
+else()
+    set(THERMORNA_WARNINGS_DEFAULT OFF)
+endif()
+
+option(THERMORNA_WARNINGS "Enable ThermoRNA compiler warnings" ${THERMORNA_WARNINGS_DEFAULT})
+
+message(STATUS "  Warnings:   ${THERMORNA_WARNINGS}")
+
 # ------------------------- External Dependencies -------------------------
 
 include(FetchContent)
@@ -42,12 +59,6 @@ if(THERMORNA_KNOTERGY)
         GIT_TAG v3.12.0
     )
     FetchContent_MakeAvailable(nlohmann_json)
-endif()
-
-# ------------------------- Configuration -------------------------
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
 endif()
 
 # ------------------------- Source Files -------------------------
@@ -91,25 +102,30 @@ endif()
 # ------------------------- Compiler Flags -------------------------
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Strict")
-    message(STATUS "Building in Debug mode")
+    message(STATUS "Building ThermoRNA in Debug mode")
 
     target_compile_options(ThermoRNALib PRIVATE
         -g
         -O0
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Wshadow
-        -Wsign-compare
-        -Wconversion
-        -Wsign-conversion
         -fsanitize=address,undefined
         -fno-sanitize-recover=all
         -fno-omit-frame-pointer
     )
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Strict")
-        target_compile_options(ThermoRNALib PRIVATE -Werror)
+    if(THERMORNA_WARNINGS)
+        target_compile_options(ThermoRNALib PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wshadow
+            -Wsign-compare
+            -Wconversion
+            -Wsign-conversion
+        )
+
+        if(CMAKE_BUILD_TYPE STREQUAL "Strict")
+            target_compile_options(ThermoRNALib PRIVATE -Werror)
+        endif()
     endif()
 
     target_link_options(ThermoRNALib PRIVATE
@@ -117,21 +133,35 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Strict")
         -fno-sanitize-recover=all
     )
 else()
-    message(STATUS "Building in Release/Normal mode")
-    target_compile_options(ThermoRNALib PRIVATE -O3 -Wall -Wextra -Wpedantic)
+    message(STATUS "Building ThermoRNA in Release/Normal mode")
+
+    target_compile_options(ThermoRNALib PRIVATE -O3)
+
+    if(THERMORNA_WARNINGS)
+        target_compile_options(ThermoRNALib PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+        )
+    endif()
 endif()
 
 # ------------------------- Install -------------------------
 
-# install(TARGETS ThermoRNALib ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
-# install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/" DESTINATION include/ThermoRNA
-#     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
+# install(TARGETS ThermoRNALib
+#     ARCHIVE DESTINATION lib
+#     LIBRARY DESTINATION lib
+# )
+#
+# install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/"
+#     DESTINATION include/ThermoRNA
+#     FILES_MATCHING
+#         PATTERN "*.hpp"
 # )
 
-# -------------------------------------------------------------------
-# clang-format
-# -------------------------------------------------------------------
+# ------------------------- clang-format -------------------------
 
+# Only create development/formatting targets when ThermoRNA is the top-level project.
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     find_program(CLANG_FORMAT_EXE NAMES clang-format)
 
