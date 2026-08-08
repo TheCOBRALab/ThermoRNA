@@ -68,7 +68,7 @@ struct vrna_param_s {
     int MultipleCB;
     int gquad[VRNA_GQUAD_MAX_STACK_SIZE + 1][3 * VRNA_GQUAD_MAX_LINKER_LENGTH + 1];
     int gquadLayerMismatch;
-    unsigned int gquadLayerMismatchMax;
+    int gquadLayerMismatchMax;
 
     double temperature; /**<  @brief  Temperature used for loop contribution scaling */
 
@@ -126,7 +126,7 @@ struct vrna_exp_param_s {
     double expMultipleCB;
     double expgquad[VRNA_GQUAD_MAX_STACK_SIZE + 1][3 * VRNA_GQUAD_MAX_LINKER_LENGTH + 1];
     double expgquadLayerMismatch;
-    unsigned int gquadLayerMismatchMax;
+    int gquadLayerMismatchMax;
 
     double kT;
     double pf_scale; /**<  @brief    Scaling factor to avoid over-/underflows */

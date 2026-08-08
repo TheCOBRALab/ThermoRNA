@@ -19,6 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cctype>
+#include <cstring>
+#include <limits>
+#include <stdexcept>
 
 /*
  * For now, we neglect all non-standard nucleotides in an input sequence, i.e. only
@@ -132,7 +136,7 @@ PUBLIC int vrna_nucleotide_encode(char c, vrna_md_t* md) {
     /* return numerical representation of nucleotide used e.g. in vrna_md_t.pair[][] */
     int code = -1;
 
-    c = toupper(c);
+    c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 
     if (md) {
         if (md->energy_set > 0) {
@@ -157,7 +161,7 @@ PUBLIC int vrna_nucleotide_encode(char c, vrna_md_t* md) {
 PUBLIC char vrna_nucleotide_decode(int enc, vrna_md_t* md) {
     if (md) {
         if (md->energy_set > 0)
-            return (char) enc + 'A' - 1;
+            return static_cast<char>(enc + 'A' - 1);
         else
             return (char) Law_and_Order[enc];
     } else {
@@ -167,10 +171,13 @@ PUBLIC char vrna_nucleotide_decode(int enc, vrna_md_t* md) {
 
 PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, short** s3_p,
                             char** ss_p, unsigned int** as_p, vrna_md_t* md) {
-    unsigned int i, l, p;
+    std::size_t i, l, p;
 
     l = strlen(sequence);
-
+    if (l > std::numeric_limits<unsigned int>::max()) {
+        throw std::length_error("Sequence too long");
+    }
+        
     (*s5_p) = (short*) vrna_alloc((l + 2) * sizeof(short));
     (*s3_p) = (short*) vrna_alloc((l + 2) * sizeof(short));
     (*as_p) = (unsigned int*) vrna_alloc((l + 2) * sizeof(unsigned int));
@@ -188,10 +195,10 @@ PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, sho
             (*s5_p)[i] = (*S_p)[i - 1];
             (*s3_p)[i] = (*S_p)[i + 1];
             (*ss_p)[i] = sequence[i];
-            (*as_p)[i] = i;
+            (*as_p)[i] = static_cast<unsigned int>(i);
         }
         (*ss_p)[l] = sequence[l];
-        (*as_p)[l] = l;
+        (*as_p)[l] = static_cast<unsigned int>(l);
         (*s5_p)[l] = (*S_p)[l - 1];
         (*s3_p)[l] = 0;
         (*S_p)[l + 1] = (*S_p)[1];
@@ -199,7 +206,7 @@ PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, sho
         if (md->circ) {
             (*s5_p)[1] = (*S_p)[l];
             (*s3_p)[l] = (*S_p)[1];
-            (*ss_p)[l + 1] = (*S_p)[1];
+            (*ss_p)[l + 1] = static_cast<char>((*S_p)[1]);
         }
     } else {
         if (md->circ) {
@@ -234,7 +241,7 @@ PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, sho
                 (*s5_p)[i + 1] = (*S_p)[i];
             }
 
-            (*as_p)[i] = p;
+            (*as_p)[i] = static_cast<unsigned int>(p);
         }
         for (i = l; i >= 1; i--) {
             char c3;

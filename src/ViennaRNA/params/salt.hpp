@@ -29,7 +29,7 @@ namespace thermorna::viennarna {
  *
  *  @return      Salt correction for loop in dcal/mol
  */
-double vrna_salt_loop(int L, double salt, double T, double backbonelen);
+double vrna_salt_loop(unsigned int L, double salt, double T, double backbonelen);
 
 /**
  *  @brief Get salt correction for a loop at a given salt concentration and temperature
@@ -46,7 +46,7 @@ double vrna_salt_loop(int L, double salt, double T, double backbonelen);
  *
  *  @return      Rounded salt correction for loop in dcal/mol
  */
-int vrna_salt_loop_int(int L, double salt, double T, double backbonelen);
+int vrna_salt_loop_int(unsigned int L, double salt, double T, double backbonelen);
 
 /**
  *  @brief Get salt correction for a stack at a given salt concentration and temperature

@@ -1654,12 +1654,14 @@ char* vrna_read_line(FILE* fp) {
         cp = strchr(s, '\n');
         if (cp) *cp = '\0';
 
-        int l2 = static_cast<int>(strlen(s));
-        int l = len + l2;
+        std::size_t l2 = strlen(s);
+        std::size_t l = len + l2;
 
-        if (l + 1 > size) {
-            size = static_cast<int>((l + 1) * 1.2);
-            line = static_cast<char*>(vrna_realloc(line, size * sizeof(char)));
+        const std::size_t required = l + 1;
+
+        if (required > size) {
+            size = required + required / 5;  // 120%
+            line = static_cast<char *>(vrna_realloc(line, size));
         }
 
         memcpy(line + len, s, l2);

@@ -76,7 +76,7 @@ PRIVATE double approx_hyper(double y) {
     return a * b + (1 - a) * c;
 }
 
-PRIVATE double loop_salt_aux(double kmlss, int L, double T, double backbonelen) {
+PRIVATE double loop_salt_aux(double kmlss, unsigned int L, double T, double backbonelen) {
     double a, b;
 
     a = (GASCONST / 1000.) * T * bjerrum_length(T) * L * backbonelen * tau_ss(T, backbonelen) *
@@ -87,7 +87,7 @@ PRIVATE double loop_salt_aux(double kmlss, int L, double T, double backbonelen) 
     return a * b * 100;
 }
 
-PUBLIC double vrna_salt_loop(int L, double rho, double T, double backbonelen) {
+PUBLIC double vrna_salt_loop(unsigned int L, double rho, double T, double backbonelen) {
     if (L == 0) return 0;
     double correction, kmlss, kmlss_ref;
 
@@ -100,7 +100,7 @@ PUBLIC double vrna_salt_loop(int L, double rho, double T, double backbonelen) {
     return correction;
 }
 
-PUBLIC int vrna_salt_loop_int(int L, double rho, double T, double backbonelen) {
+PUBLIC int vrna_salt_loop_int(unsigned int L, double rho, double T, double backbonelen) {
     double correction;
 
     correction = vrna_salt_loop(L, rho, T, backbonelen);
