@@ -12,28 +12,18 @@
 # define DEPRECATED(func, msg) func
 #endif
 
-/**
- *  @file     params/basic.h
- *  @ingroup  energy_parameters
- *  @brief    Functions to deal with sets of energy parameters
- */
-
-/**
- *  @addtogroup energy_parameters
- *  @{
- */
-
-/** @brief Typename for the free energy parameter data structure #vrna_params */
-typedef struct  vrna_param_s vrna_param_t;
-/** @brief Typename for the Boltzmann factor data structure #vrna_exp_params */
-typedef struct  vrna_exp_param_s vrna_exp_param_t;
-
 #include <ViennaRNA/params/constants.h>
 #include <ViennaRNA/datastructures/basic.h>
 #include <ViennaRNA/fold_compound.h>
 #include <ViennaRNA/model.h>
 
+
 namespace thermorna::viennarna {
+/** @brief Typename for the free energy parameter data structure #vrna_params */
+typedef struct  vrna_param_s vrna_param_t;
+/** @brief Typename for the Boltzmann factor data structure #vrna_exp_params */
+typedef struct  vrna_exp_param_s vrna_exp_param_t;
+
 #define   VRNA_GQUAD_MAX_STACK_SIZE     7
 #define   VRNA_GQUAD_MIN_STACK_SIZE     2
 #define   VRNA_GQUAD_MAX_LINKER_LENGTH  15
