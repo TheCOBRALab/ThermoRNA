@@ -1,7 +1,7 @@
 #include "ViennaRNA/model.hpp"
+
 #include "ViennaRNA/params/constants.hpp"
 #include "ViennaRNA/utils/utils.hpp"
-
 
 #include <cstring>
 
@@ -18,7 +18,7 @@ int tetra_loop = VRNA_MODEL_DEFAULT_SPECIAL_HP;
 int noGU = VRNA_MODEL_DEFAULT_NO_GU;
 int no_closingGU = VRNA_MODEL_DEFAULT_NO_GU_CLOSURE;
 int energy_set = VRNA_MODEL_DEFAULT_ENERGY_SET;
-char *nonstandards = nullptr;
+char* nonstandards = nullptr;
 int max_bp_span = VRNA_MODEL_DEFAULT_MAX_BP_SPAN;
 int logML = VRNA_MODEL_DEFAULT_LOG_ML;
 
@@ -27,39 +27,41 @@ int logML = VRNA_MODEL_DEFAULT_LOG_ML;
 int james_rule = 1; /* interior loops of size 2 get energy 0.8Kcal and
                      * no mismatches (no longer used) */
 
-#define   BP_REV_DEFAULT        { 0, 2, 1, 4, 3, 6, 5, 7 }
+#define BP_REV_DEFAULT \
+    { 0, 2, 1, 4, 3, 6, 5, 7 }
 
-#define   BP_ALIAS_DEFAULT      { 0, 1, 2, 3, 4, 3, 2, 0 }
+#define BP_ALIAS_DEFAULT \
+    { 0, 1, 2, 3, 4, 3, 2, 0 }
 
-#define   BP_ENCODING_DEFAULT \
-  /*  _  A  C  G  U  X  K  I */ \
-  { { 0, 0, 0, 0, 0, 0, 0, 0 }, \
-    { 0, 0, 0, 0, 5, 0, 0, 5 }, \
-    { 0, 0, 0, 1, 0, 0, 0, 0 }, \
-    { 0, 0, 2, 0, 3, 0, 0, 0 }, \
-    { 0, 6, 0, 4, 0, 0, 0, 6 }, \
-    { 0, 0, 0, 0, 0, 0, 2, 0 }, \
-    { 0, 0, 0, 0, 0, 1, 0, 0 }, \
-    { 0, 6, 0, 0, 5, 0, 0, 0 } }
+#define BP_ENCODING_DEFAULT                                                               \
+    /*  _  A  C  G  U  X  K  I */                                                         \
+    {                                                                                     \
+        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 5, 0, 0, 5}, {0, 0, 0, 1, 0, 0, 0, 0},     \
+            {0, 0, 2, 0, 3, 0, 0, 0}, {0, 6, 0, 4, 0, 0, 0, 6}, {0, 0, 0, 0, 0, 0, 2, 0}, \
+            {0, 0, 0, 0, 0, 1, 0, 0}, {                                                   \
+            0, 6, 0, 0, 5, 0, 0, 0                                                        \
+        }                                                                                 \
+    }
 
-#define   DM_DEFAULT \
-  { { 0, 0, 0, 0, 0, 0, 0 }, /* hamming distance between pairs */ \
-    { 0, 0, 2, 2, 1, 2, 2 } /* CG */, \
-    { 0, 2, 0, 1, 2, 2, 2 } /* GC */, \
-    { 0, 2, 1, 0, 2, 1, 2 } /* GU */, \
-    { 0, 1, 2, 2, 0, 2, 1 } /* UG */, \
-    { 0, 2, 2, 1, 2, 0, 2 } /* AU */, \
-    { 0, 2, 2, 2, 1, 2, 0 } /* UA */ }
+#define DM_DEFAULT                                                          \
+    {                                                                       \
+        {0, 0, 0, 0, 0, 0, 0}, /* hamming distance between pairs */         \
+            {0, 0, 2, 2, 1, 2, 2} /* CG */, {0, 2, 0, 1, 2, 2, 2} /* GC */, \
+            {0, 2, 1, 0, 2, 1, 2} /* GU */, {0, 1, 2, 2, 0, 2, 1} /* UG */, \
+            {0, 2, 2, 1, 2, 0, 2} /* AU */, {                               \
+            0, 2, 2, 2, 1, 2, 0                                             \
+        } /* UA */                                                          \
+    }
 
 static vrna_md_t defaults = {
-    VRNA_MODEL_DEFAULT_TEMPERATURE,       // temperature
-    1.,                                   // betaScale
-    VRNA_MODEL_DEFAULT_PF_SMOOTH,         // pf_smooth
-    VRNA_MODEL_DEFAULT_DANGLES,           // dangles
-    VRNA_MODEL_DEFAULT_SPECIAL_HP,        // special_hp
-    VRNA_MODEL_DEFAULT_NO_LP,             // noLP
-    VRNA_MODEL_DEFAULT_NO_GU,             // noGU
-    VRNA_MODEL_DEFAULT_NO_GU_CLOSURE,     // noGUclosure
+    VRNA_MODEL_DEFAULT_TEMPERATURE,        // temperature
+    1.,                                    // betaScale
+    VRNA_MODEL_DEFAULT_PF_SMOOTH,          // pf_smooth
+    VRNA_MODEL_DEFAULT_DANGLES,            // dangles
+    VRNA_MODEL_DEFAULT_SPECIAL_HP,         // special_hp
+    VRNA_MODEL_DEFAULT_NO_LP,              // noLP
+    VRNA_MODEL_DEFAULT_NO_GU,              // noGU
+    VRNA_MODEL_DEFAULT_NO_GU_CLOSURE,      // noGUclosure
     VRNA_MODEL_DEFAULT_LOG_ML,             // logML
     VRNA_MODEL_DEFAULT_CIRC,               // circ
     VRNA_MODEL_DEFAULT_CIRC_PENALTY,       // circ_penalty
@@ -69,7 +71,7 @@ static vrna_md_t defaults = {
     VRNA_MODEL_DEFAULT_BACKTRACK,          // backtrack
     VRNA_MODEL_DEFAULT_BACKTRACK_TYPE,     // backtrack_type
     VRNA_MODEL_DEFAULT_COMPUTE_BPP,        // compute_bpp
-    { 0 },                                 // nonstandards[64]
+    {0},                                   // nonstandards[64]
     VRNA_MODEL_DEFAULT_MAX_BP_SPAN,        // max_bp_span
     TURN,                                  // min_loop_size
     VRNA_MODEL_DEFAULT_WINDOW_SIZE,        // window_size
@@ -92,7 +94,7 @@ static vrna_md_t defaults = {
     VRNA_MODEL_DEFAULT_CIRC_ALPHA0         // circ_alpha0
 };
 
-void vrna_md_set_default(vrna_md_t *md) {
+void vrna_md_set_default(vrna_md_t* md) {
     if (md) /* copy defaults */
         vrna_md_copy(md, &defaults);
 }
@@ -102,16 +104,16 @@ void vrna_md_set_default(vrna_md_t *md) {
  # BEGIN OF FUNCTION DEFINITIONS #
  #################################
  */
-vrna_md_t *vrna_md_copy(vrna_md_t *md_to, const vrna_md_t *md_from) {
+vrna_md_t* vrna_md_copy(vrna_md_t* md_to, const vrna_md_t* md_from) {
     int i;
-    vrna_md_t *md;
+    vrna_md_t* md;
 
     md = nullptr;
 
     /* only process if md_from is non-NULL */
     if (md_from) {
         if (!md_to) /* create container to be filled */
-            md = (vrna_md_t *)vrna_alloc(sizeof(vrna_md_t));
+            md = (vrna_md_t*) vrna_alloc(sizeof(vrna_md_t));
         else
             /* or directly write to target */
             md = md_to;
@@ -132,4 +134,4 @@ vrna_md_t *vrna_md_copy(vrna_md_t *md_to, const vrna_md_t *md_from) {
 
     return md;
 }
-} // namespace thermorna::viennarna
+}  // namespace thermorna::viennarna

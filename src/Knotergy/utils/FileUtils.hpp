@@ -80,4 +80,4 @@ class FileUtils {
     [[nodiscard]] static std::string strip_extension(const std::string& path);
 };
 
-}  // namespace knotergy
+}  // namespace thermorna::knotergy

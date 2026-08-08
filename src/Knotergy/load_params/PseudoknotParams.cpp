@@ -1,7 +1,8 @@
 #include "PseudoknotParams.hpp"
+
 #include "Knotergy/utils/FileUtils.hpp"
-#include "Knotergy/utils/common.hpp"
 #include "Knotergy/utils/colors.hpp"
+#include "Knotergy/utils/common.hpp"
 
 namespace thermorna::knotergy {
 
@@ -11,8 +12,9 @@ pk_param PseudoknotParams::load_pk_param(const std::string& paramFile, RoundMeth
     info.requested_path = paramFile;
 
     if (paramFile.empty()) {
-        std::cout << WARNING << " Warning: Default pseudoknot parameter file not found. Using "
-        "hard-coded defaults.\n";
+        std::cout << WARNING
+                  << " Warning: Default pseudoknot parameter file not found. Using "
+                     "hard-coded defaults.\n";
 
         pk_param pkp = pk_param();
         info.status = ParamStatus::Defaulted;
@@ -53,12 +55,12 @@ pk_param PseudoknotParams::parse_pk_json(const std::string& jsonFile, RoundMetho
     }
     const auto& pk = *it;
 
-    return pk_param(pk.value("name", std::string{"No Name Provided"}), pk.at("pk_in_ext").get<int>(),
-                    pk.at("pk_in_mloop").get<int>(), pk.at("pk_in_pk").get<int>(),
-                    pk.at("band_penalty").get<int>(), pk.at("unpaired_in_pk").get<int>(),
-                    pk.at("cr_in_pk").get<int>(), pk.at("pk_stack_x").get<double>(),
-                    pk.at("pk_internal_x").get<double>(), pk.at("pk_mloop_init").get<int>(),
-                    pk.at("pk_mloop_bp").get<int>(), pk.at("pk_mloop_unpaired").get<int>(),
-                    round_method);
-    }
+    return pk_param(pk.value("name", std::string{"No Name Provided"}),
+                    pk.at("pk_in_ext").get<int>(), pk.at("pk_in_mloop").get<int>(),
+                    pk.at("pk_in_pk").get<int>(), pk.at("band_penalty").get<int>(),
+                    pk.at("unpaired_in_pk").get<int>(), pk.at("cr_in_pk").get<int>(),
+                    pk.at("pk_stack_x").get<double>(), pk.at("pk_internal_x").get<double>(),
+                    pk.at("pk_mloop_init").get<int>(), pk.at("pk_mloop_bp").get<int>(),
+                    pk.at("pk_mloop_unpaired").get<int>(), round_method);
 }
+}  // namespace thermorna::knotergy

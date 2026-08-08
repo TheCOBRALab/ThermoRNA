@@ -11,9 +11,10 @@
  *  @{
  */
 
-#include <math.h>
-#include "ViennaRNA/utils/basic.hpp"
 #include "ViennaRNA/model.hpp"
+#include "ViennaRNA/utils/basic.hpp"
+
+#include <math.h>
 
 namespace thermorna::viennarna {
 
@@ -23,13 +24,12 @@ namespace thermorna::viennarna {
  *  @param L            backbone number in loop
  *  @param salt         salt concentration (M)
  *  @param T            absolute temperature (K)
- *  @param backbonelen  Backbone Length, phosphate-to-phosphate distance (typically 6 for RNA, 6.76 for DNA)
- *  
+ *  @param backbonelen  Backbone Length, phosphate-to-phosphate distance (typically 6 for RNA, 6.76
+ * for DNA)
+ *
  *  @return      Salt correction for loop in dcal/mol
  */
-double
-vrna_salt_loop(int L, double salt, double T, double backbonelen);
-
+double vrna_salt_loop(int L, double salt, double T, double backbonelen);
 
 /**
  *  @brief Get salt correction for a loop at a given salt concentration and temperature
@@ -41,13 +41,12 @@ vrna_salt_loop(int L, double salt, double T, double backbonelen);
  *  @param L            backbone number in loop
  *  @param salt         salt concentration (M)
  *  @param T            absolute temperature (K)
- *  @param backbonelen  Backbone Length, phosphate-to-phosphate distance (typically 6 for RNA, 6.76 for DNA)
- *  
+ *  @param backbonelen  Backbone Length, phosphate-to-phosphate distance (typically 6 for RNA, 6.76
+ * for DNA)
+ *
  *  @return      Rounded salt correction for loop in dcal/mol
  */
-int
-vrna_salt_loop_int(int L, double salt, double T, double backbonelen);
-
+int vrna_salt_loop_int(int L, double salt, double T, double backbonelen);
 
 /**
  *  @brief Get salt correction for a stack at a given salt concentration and temperature
@@ -55,12 +54,10 @@ vrna_salt_loop_int(int L, double salt, double T, double backbonelen);
  *  @param salt   salt concentration (M)
  *  @param T      absolute temperature (K)
  *  @param hrise  Helical Rise (typically 2.8 for RNA, 3.4 for DNA)
- *  
+ *
  *  @return      Rounded salt correction for stack in dcal/mol
  */
-int
-vrna_salt_stack(double salt, double T, double hrise);
-
+int vrna_salt_stack(double salt, double T, double hrise);
 
 /**
  *  @brief Fit linear function to loop salt correction
@@ -78,9 +75,7 @@ vrna_salt_stack(double salt, double T, double hrise);
  *  @param m         pointer to store the parameter m in fitting result
  *  @param b         pointer to store the parameter b in fitting result
  */
-void
-vrna_salt_ml(double saltLoop[], int lower, int upper, int *m, int *b);
-
+void vrna_salt_ml(double saltLoop[], int lower, int upper, int* m, int* b);
 
 /**
  *  @brief Get salt correction for duplex initialization at a given salt concentration
@@ -88,7 +83,6 @@ vrna_salt_ml(double saltLoop[], int lower, int upper, int *m, int *b);
  *  @param md   Model details data structure that specfifies salt concentration in buffer (M)
  *  @return     Rounded correction for duplex initialization in dcal/mol
  */
-int
-vrna_salt_duplex_init(vrna_md_t *md);
+int vrna_salt_duplex_init(vrna_md_t* md);
 
-}
+}  // namespace thermorna::viennarna

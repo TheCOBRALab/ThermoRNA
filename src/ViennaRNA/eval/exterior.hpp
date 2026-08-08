@@ -20,15 +20,13 @@ namespace thermorna::viennarna {
  *  @see vrna_exp_E_exterior_stem()
  *
  *  @param  type  The base pair encoding
- *  @param  n5d   The encoded nucleotide directly adjacent at the 5' side of the base pair (may be -1)
- *  @param  n3d   The encoded nucleotide directly adjacent at the 3' side of the base pair (may be -1)
+ *  @param  n5d   The encoded nucleotide directly adjacent at the 5' side of the base pair (may be
+ * -1)
+ *  @param  n3d   The encoded nucleotide directly adjacent at the 3' side of the base pair (may be
+ * -1)
  *  @param  p     The pre-computed energy parameters
  *  @return       The energy contribution of the introduced exterior-loop stem
  */
-int
-vrna_E_exterior_stem(unsigned int type,
-                     int          n5d,
-                     int          n3d,
-                     vrna_param_t *p);
+int vrna_E_exterior_stem(unsigned int type, int n5d, int n3d, vrna_param_t* p);
 
-} // namespace thermorna::viennarna
+}  // namespace thermorna::viennarna

@@ -1,15 +1,15 @@
 #pragma once
 
 #ifdef VRNA_WARN_DEPRECATED
-# if defined(__clang__)
-#  define DEPRECATED(func, msg) func __attribute__ ((deprecated("", msg)))
-# elif defined(__GNUC__)
-#  define DEPRECATED(func, msg) func __attribute__ ((deprecated(msg)))
-# else
-#  define DEPRECATED(func, msg) func
-# endif
+#if defined(__clang__)
+#define DEPRECATED(func, msg) func __attribute__((deprecated("", msg)))
+#elif defined(__GNUC__)
+#define DEPRECATED(func, msg) func __attribute__((deprecated(msg)))
 #else
-# define DEPRECATED(func, msg) func
+#define DEPRECATED(func, msg) func
+#endif
+#else
+#define DEPRECATED(func, msg) func
 #endif
 
 namespace thermorna::viennarna {
@@ -24,15 +24,13 @@ namespace thermorna::viennarna {
  *  @{
  */
 
-
 /**
  *  @brief  Default Energy Parameter File format
  *
  *  @see    vrna_params_load(), vrna_params_load_from_string(),
  *          vrna_params_save()
  */
-#define VRNA_PARAMETER_FORMAT_DEFAULT     0
-
+#define VRNA_PARAMETER_FORMAT_DEFAULT 0
 
 /**
  *  @brief Load energy parameters from a file
@@ -47,24 +45,19 @@ namespace thermorna::viennarna {
  *  @param  options File format bit-mask (usually #VRNA_PARAMETER_FORMAT_DEFAULT)
  *  @return         Non-zero on success, 0 on failure
  */
-int
-vrna_params_load(const char   fname[],
-                 unsigned int options);
-
+int vrna_params_load(const char fname[], unsigned int options);
 
 /**
  *  @brief Save energy parameters to a file
  *
  *  @see vrna_params_load()
  *
- *  @param fname  A filename (path) for the file where the current energy parameters will be written to
+ *  @param fname  A filename (path) for the file where the current energy parameters will be written
+ * to
  *  @param  options File format bit-mask (usually #VRNA_PARAMETER_FORMAT_DEFAULT)
  *  @return         Non-zero on success, 0 on failure
  */
-int
-vrna_params_save(const char   fname[],
-                 unsigned int options);
-
+int vrna_params_save(const char fname[], unsigned int options);
 
 /**
  *  @brief  Load energy paramters from string
@@ -84,11 +77,7 @@ vrna_params_save(const char   fname[],
  *  @param    options File format bit-mask (usually #VRNA_PARAMETER_FORMAT_DEFAULT)
  *  @return           Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_from_string(const char   *string,
-                             const char   *name,
-                             unsigned int options);
-
+int vrna_params_load_from_string(const char* string, const char* name, unsigned int options);
 
 /**
  *  @brief  Load default RNA energy parameter set
@@ -104,9 +93,7 @@ vrna_params_load_from_string(const char   *string,
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_defaults(void);
-
+int vrna_params_load_defaults(void);
 
 /**
  *  @brief  Load Turner 2004 RNA energy parameter set
@@ -124,9 +111,7 @@ vrna_params_load_defaults(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_RNA_Turner2004(void);
-
+int vrna_params_load_RNA_Turner2004(void);
 
 /**
  *  @brief  Load Turner 1999 RNA energy parameter set
@@ -145,9 +130,7 @@ vrna_params_load_RNA_Turner2004(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_RNA_Turner1999(void);
-
+int vrna_params_load_RNA_Turner1999(void);
 
 /**
  *  @brief  Load Andronsecu 2007 RNA energy parameter set
@@ -165,9 +148,7 @@ vrna_params_load_RNA_Turner1999(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_RNA_Andronescu2007(void);
-
+int vrna_params_load_RNA_Andronescu2007(void);
 
 /**
  *  @brief  Load Langdon 2018 RNA energy parameter set
@@ -185,9 +166,7 @@ vrna_params_load_RNA_Andronescu2007(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_RNA_Langdon2018(void);
-
+int vrna_params_load_RNA_Langdon2018(void);
 
 /**
  *  @brief  Load Misc Special Hairpin RNA energy parameter set
@@ -206,9 +185,7 @@ vrna_params_load_RNA_Langdon2018(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_RNA_misc_special_hairpins(void);
-
+int vrna_params_load_RNA_misc_special_hairpins(void);
 
 /**
  *  @brief  Load Mathews 2004 DNA energy parameter set
@@ -227,9 +204,7 @@ vrna_params_load_RNA_misc_special_hairpins(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_DNA_Mathews2004(void);
-
+int vrna_params_load_DNA_Mathews2004(void);
 
 /**
  *  @brief  Load Mathews 1999 DNA energy parameter set
@@ -248,44 +223,69 @@ vrna_params_load_DNA_Mathews2004(void);
  *
  *  @return Non-zero on success, 0 on failure
  */
-int
-vrna_params_load_DNA_Mathews1999(void);
-
+int vrna_params_load_DNA_Mathews1999(void);
 
 /**
  *  @brief
  *
  */
 enum parset {
-  UNKNOWN= -1, QUIT,
-  S, S_H, HP, HP_H, B, B_H, IL, IL_H, MMH, MMH_H, MMI, MMI_H,
-  MMI1N, MMI1N_H, MMI23, MMI23_H, MMM, MMM_H, MME, MME_H, D5, D5_H, D3, D3_H,
-  INT11, INT11_H, INT21, INT21_H, INT22, INT22_H, ML, TL,
-  TRI, HEX, NIN, MISC
+    UNKNOWN = -1,
+    QUIT,
+    S,
+    S_H,
+    HP,
+    HP_H,
+    B,
+    B_H,
+    IL,
+    IL_H,
+    MMH,
+    MMH_H,
+    MMI,
+    MMI_H,
+    MMI1N,
+    MMI1N_H,
+    MMI23,
+    MMI23_H,
+    MMM,
+    MMM_H,
+    MME,
+    MME_H,
+    D5,
+    D5_H,
+    D3,
+    D3_H,
+    INT11,
+    INT11_H,
+    INT21,
+    INT21_H,
+    INT22,
+    INT22_H,
+    ML,
+    TL,
+    TRI,
+    HEX,
+    NIN,
+    MISC
 };
-
 
 /**
  *  @brief Get the file name of the parameter file that was most recently loaded
  *
  *  @return The file name of the last parameter file, or NULL if parameters are still at defaults
  */
-const char *
-last_parameter_file(void);
-
+const char* last_parameter_file(void);
 
 /**
  *  @brief
  *
  */
-enum  parset
-gettype(const char *ident);
-
+enum parset gettype(const char* ident);
 
 /**
  *  @brief
  *
  */
-const char *
-settype(enum parset s);
-}
+const char* settype(enum parset s);
+}  // namespace thermorna::viennarna

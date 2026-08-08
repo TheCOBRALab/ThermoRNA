@@ -3,9 +3,9 @@
 #include "ViennaRNA/params/basic.hpp"
 
 #ifdef __GNUC__
-# define INLINE inline
+#define INLINE inline
 #else
-# define INLINE
+#define INLINE
 #endif
 
 namespace thermorna::viennarna {
@@ -27,14 +27,12 @@ namespace thermorna::viennarna {
  *  @see vrna_exp_E_multibranch_stem(), vrna_E_exterior_stem()
  *
  *  @param  type  The base pair encoding
- *  @param  si1   The encoded nucleotide directly adjacent at the 5' side of the base pair (may be -1)
- *  @param  sj1   The encoded nucleotide directly adjacent at the 3' side of the base pair (may be -1)
+ *  @param  si1   The encoded nucleotide directly adjacent at the 5' side of the base pair (may be
+ * -1)
+ *  @param  sj1   The encoded nucleotide directly adjacent at the 3' side of the base pair (may be
+ * -1)
  *  @param  P     The pre-computed energy parameters
  *  @return       The energy contribution of the introduced mutlibranch loop stem
  */
-int
-vrna_E_multibranch_stem(unsigned int  type,
-                        int           si1,
-                        int           sj1,
-                        vrna_param_t  *P);
-} // namespace thermorna::viennarna
+int vrna_E_multibranch_stem(unsigned int type, int si1, int sj1, vrna_param_t* P);
+}  // namespace thermorna::viennarna

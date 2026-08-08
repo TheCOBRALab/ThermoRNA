@@ -1,20 +1,21 @@
 #pragma once
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 
-#include "ViennaRNA/utils/basic.hpp"
+#include <cstddef>
+#include <cstdlib>
 
 #ifdef VRNA_WARN_DEPRECATED
-# if defined(__clang__)
-#  define DEPRECATED(func, msg) func __attribute__ ((deprecated("", msg)))
-# elif defined(__GNUC__)
-#  define DEPRECATED(func, msg) func __attribute__ ((deprecated(msg)))
-# else
-#  define DEPRECATED(func, msg) func
-# endif
+#if defined(__clang__)
+#define DEPRECATED(func, msg) func __attribute__((deprecated("", msg)))
+#elif defined(__GNUC__)
+#define DEPRECATED(func, msg) func __attribute__((deprecated(msg)))
 #else
-# define DEPRECATED(func, msg) func
+#define DEPRECATED(func, msg) func
+#endif
+#else
+#define DEPRECATED(func, msg) func
 #endif
 
 /**
@@ -31,30 +32,28 @@
 /* two helper macros to indicate whether a function should be exported in
  * the library or stays hidden */
 
-
-
 namespace thermorna::viennarna {
 #define PUBLIC
 #define PRIVATE static
 
 #if defined(__clang__) || defined(__GNUC__)
-# define VRNA_UNUSED __attribute__((unused))
+#define VRNA_UNUSED __attribute__((unused))
 #else
-# define VRNA_UNUSED
+#define VRNA_UNUSED
 #endif
 
 /**
  *  @brief Output flag of get_input_line():  @e "An ERROR has occured, maybe EOF"
  */
-#define VRNA_INPUT_ERROR                  1U
+#define VRNA_INPUT_ERROR 1U
 /**
  *  @brief @brief Output flag of get_input_line():  @e "the user requested quitting the program"
  */
-#define VRNA_INPUT_QUIT                   2U
+#define VRNA_INPUT_QUIT 2U
 /**
  *  @brief Output flag of get_input_line():  @e "something was read"
  */
-#define VRNA_INPUT_MISC                   4U
+#define VRNA_INPUT_MISC 4U
 
 /**
  *  @brief  Input/Output flag of get_input_line():\n
@@ -63,79 +62,79 @@ namespace thermorna::viennarna {
  *
  *  the function will return this flag if a fasta header was read
  */
-#define VRNA_INPUT_FASTA_HEADER           8U
+#define VRNA_INPUT_FASTA_HEADER 8U
 
 /*
  *  @brief  Input flag for get_input_line():\n
  *  Tell get_input_line() that we assume to read a nucleotide sequence
  *
  */
-#define VRNA_INPUT_SEQUENCE               16U
+#define VRNA_INPUT_SEQUENCE 16U
 
 /** @brief  Input flag for get_input_line():\n
  *  Tell get_input_line() that we assume to read a structure constraint
  *
  */
-#define VRNA_INPUT_CONSTRAINT             32U
+#define VRNA_INPUT_CONSTRAINT 32U
 
 /**
  *  @brief  Input switch for get_input_line():
  *  @e "do not trunkate the line by eliminating white spaces at end of line"
  */
-#define VRNA_INPUT_NO_TRUNCATION          256U
+#define VRNA_INPUT_NO_TRUNCATION 256U
 
 /**
  *  @brief  Input switch for vrna_file_fasta_read_record():  @e "do fill rest array"
  */
-#define VRNA_INPUT_NO_REST                512U
+#define VRNA_INPUT_NO_REST 512U
 
 /**
- *  @brief  Input switch for vrna_file_fasta_read_record():  @e "never allow data to span more than one line"
+ *  @brief  Input switch for vrna_file_fasta_read_record():  @e "never allow data to span more than
+ * one line"
  */
-#define VRNA_INPUT_NO_SPAN                1024U
+#define VRNA_INPUT_NO_SPAN 1024U
 
 /**
  *  @brief  Input switch for vrna_file_fasta_read_record():  @e "do not skip empty lines"
  */
-#define VRNA_INPUT_NOSKIP_BLANK_LINES     2048U
+#define VRNA_INPUT_NOSKIP_BLANK_LINES 2048U
 
 /**
  *  @brief  Output flag for vrna_file_fasta_read_record():  @e "read an empty line"
  */
-#define VRNA_INPUT_BLANK_LINE             4096U
+#define VRNA_INPUT_BLANK_LINE 4096U
 
 /**
  *  @brief Input switch for get_input_line():  @e "do not skip comment lines"
  */
-#define VRNA_INPUT_NOSKIP_COMMENTS        128U
+#define VRNA_INPUT_NOSKIP_COMMENTS 128U
 
 /**
  *  @brief  Output flag for vrna_file_fasta_read_record():  @e "read a comment"
  */
-#define VRNA_INPUT_COMMENT                8192U
+#define VRNA_INPUT_COMMENT 8192U
 
 /**
  *  @brief Get the minimum of two comparable values
  */
-#define MIN2(A, B)      ((A) < (B) ? (A) : (B))
+#define MIN2(A, B) ((A) < (B) ? (A) : (B))
 
 /**
  *  @brief Get the maximum of two comparable values
  */
-#define MAX2(A, B)      ((A) > (B) ? (A) : (B))
+#define MAX2(A, B) ((A) > (B) ? (A) : (B))
 
 /**
  *  @brief Get the minimum of three comparable values
  */
-#define MIN3(A, B, C)   (MIN2((MIN2((A), (B))), (C)))
+#define MIN3(A, B, C) (MIN2((MIN2((A), (B))), (C)))
 
 /**
  *  @brief Get the maximum of three comparable values
  */
-#define MAX3(A, B, C)   (MAX2((MAX2((A), (B))), (C)))
+#define MAX3(A, B, C) (MAX2((MAX2((A), (B))), (C)))
 
 /** @} */
-
 
 /**
  *  @addtogroup utils
@@ -145,8 +144,8 @@ namespace thermorna::viennarna {
 #ifdef WITH_DMALLOC
 /* use dmalloc library to check for memory management bugs */
 #include "dmalloc.h"
-#define vrna_alloc(S)       calloc(1, (S))
-#define vrna_realloc(p, S)  xrealloc(p, S)
+#define vrna_alloc(S) calloc(1, (S))
+#define vrna_realloc(p, S) xrealloc(p, S)
 #else
 
 /**
@@ -155,9 +154,7 @@ namespace thermorna::viennarna {
  *  @param size The size of the memory to be allocated in bytes
  *  @return     A pointer to the allocated memory
  */
-void *
-vrna_alloc(size_t size);
-
+inline void* vrna_alloc(std::size_t size) { return std::calloc(1, size); }
 
 /**
  *  @brief Reallocate space safely
@@ -166,10 +163,7 @@ vrna_alloc(size_t size);
  *  @param size The size of the memory to be allocated in bytes
  *  @return     A pointer to the newly allocated memory
  */
-void *
-vrna_realloc(void     *p,
-             size_t size);
-
+inline void* vrna_realloc(void* p, std::size_t size) { return std::realloc(p, size); }
 
 #endif
 
@@ -178,9 +172,7 @@ vrna_realloc(void     *p,
  *
  *  @see  vrna_init_rand_seed(), vrna_urn()
  */
-void
-vrna_init_rand(void);
-
+void vrna_init_rand(void);
 
 /**
  *  @brief  Initialize the random number generator with a pre-defined seed
@@ -189,9 +181,7 @@ vrna_init_rand(void);
  *
  *  @param  seed  The seed for the random number generator
  */
-void
-vrna_init_rand_seed(unsigned int seed);
-
+void vrna_init_rand_seed(unsigned int seed);
 
 /**
  * @brief Current 48 bit random number
@@ -212,9 +202,7 @@ extern unsigned short xsubi[3];
  *
  *  @return   A random number in range [0..1]
  */
-double
-vrna_urn(void);
-
+double vrna_urn(void);
 
 /**
  *  @brief Generates a pseudo random integer in a specified range
@@ -225,10 +213,7 @@ vrna_urn(void);
  *  @param to     The last number in range
  *  @return       A pseudo random number in range [from, to]
  */
-int
-vrna_int_urn(int  from,
-             int  to);
-
+int vrna_int_urn(int from, int to);
 
 /**
  *  @brief Get a timestamp
@@ -238,9 +223,7 @@ vrna_int_urn(int  from,
  *
  *  @return A string containing the timestamp
  */
-char *
-vrna_time_stamp(void);
-
+char* vrna_time_stamp(void);
 
 /**
  *  Retrieve a line from 'stdin' savely while skipping comment characters and
@@ -262,17 +245,15 @@ vrna_time_stamp(void);
  *  @param options  A collection of options for switching the functions behavior
  *  @return         A flag with information about what has been read
  */
-unsigned int
-get_input_line(char         **string,
-               unsigned int options);
-
+unsigned int get_input_line(char** string, unsigned int options);
 
 /**
- *  @brief Get an index mapper array (iindx) for accessing the energy matrices, e.g. in partition function related functions.
+ *  @brief Get an index mapper array (iindx) for accessing the energy matrices, e.g. in partition
+ * function related functions.
  *
- *  Access of a position "(i,j)" is then accomplished by using @verbatim (i,j) ~ iindx[i]-j @endverbatim
- *  This function is necessary as most of the two-dimensional energy matrices are actually one-dimensional arrays throughout
- *  the ViennaRNA Package
+ *  Access of a position "(i,j)" is then accomplished by using @verbatim (i,j) ~ iindx[i]-j
+ * @endverbatim This function is necessary as most of the two-dimensional energy matrices are
+ * actually one-dimensional arrays throughout the ViennaRNA Package
  *
  *  Consult the implemented code to find out about the mapping formula ;)
  *
@@ -281,16 +262,15 @@ get_input_line(char         **string,
  *  @param length The length of the RNA sequence
  *  @return       The mapper array
  */
-int *
-vrna_idx_row_wise(unsigned int length);
-
+int* vrna_idx_row_wise(unsigned int length);
 
 /**
- *  @brief Get an index mapper array (indx) for accessing the energy matrices, e.g. in MFE related functions.
+ *  @brief Get an index mapper array (indx) for accessing the energy matrices, e.g. in MFE related
+ * functions.
  *
- *  Access of a position "(i,j)" is then accomplished by using @verbatim (i,j) ~ indx[j]+i @endverbatim
- *  This function is necessary as most of the two-dimensional energy matrices are actually one-dimensional arrays throughout
- *  the ViennaRNAPackage
+ *  Access of a position "(i,j)" is then accomplished by using @verbatim (i,j) ~ indx[j]+i
+ * @endverbatim This function is necessary as most of the two-dimensional energy matrices are
+ * actually one-dimensional arrays throughout the ViennaRNAPackage
  *
  *  Consult the implemented code to find out about the mapping formula ;)
  *
@@ -300,9 +280,7 @@ vrna_idx_row_wise(unsigned int length);
  *  @return       The mapper array
  *
  */
-int *
-vrna_idx_col_wise(unsigned int length);
-
+int* vrna_idx_col_wise(unsigned int length);
 
 /** @} */
 
@@ -325,11 +303,8 @@ vrna_idx_col_wise(unsigned int length);
  *  @param format The error message to be printed
  *  @param ...    Optional arguments for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_error(const char *format,
-                              ...),
+DEPRECATED(void vrna_message_error(const char* format, ...),
            "Use vrna_log_error() or vrna_log() instead");
-
 
 /**
  *  @brief Print an error message and die
@@ -345,11 +320,8 @@ DEPRECATED(void
  *  @param format The error message to be printed
  *  @param args   The argument list for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_verror(const char  *format,
-                               va_list     args),
+DEPRECATED(void vrna_message_verror(const char* format, va_list args),
            "Use vrna_log_error() or vrna_log() instead");
-
 
 /**
  *  @brief Print a warning message
@@ -364,11 +336,8 @@ DEPRECATED(void
  *  @param format The warning message to be printed
  *  @param ...    Optional arguments for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_warning(const char *format,
-                                ...),
+DEPRECATED(void vrna_message_warning(const char* format, ...),
            "Use vrna_log_warning() or vrna_log() instead");
-
 
 /**
  *  @brief Print a warning message
@@ -383,11 +352,8 @@ DEPRECATED(void
  *  @param format The warning message to be printed
  *  @param args   The argument list for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_vwarning(const char  *format,
-                                 va_list     args),
+DEPRECATED(void vrna_message_vwarning(const char* format, va_list args),
            "Use vrna_log_warning() or vrna_log() instead");
-
 
 /**
  *  @brief Print an info message
@@ -402,12 +368,8 @@ DEPRECATED(void
  *  @param format The warning message to be printed
  *  @param ...    Optional arguments for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_info(FILE        *fp,
-                             const char  *format,
-                             ...),
+DEPRECATED(void vrna_message_info(FILE* fp, const char* format, ...),
            "Use vrna_log_info() or vrna_log() instead");
-
 
 /**
  *  @brief Print an info message
@@ -422,21 +384,15 @@ DEPRECATED(void
  *  @param format The info message to be printed
  *  @param args   The argument list for the formatted message string
  */
-DEPRECATED(void
-           vrna_message_vinfo(FILE       *fp,
-                              const char *format,
-                              va_list    args),
+DEPRECATED(void vrna_message_vinfo(FILE* fp, const char* format, va_list args),
            "Use vrna_log_info() or vrna_log() instead");
-
 
 /**
  *  @brief Print a line to @e stdout that asks for an input sequence
  *
  *  There will also be a ruler (scale line) printed that helps orientation of the sequence positions
  */
-void
-vrna_message_input_seq_simple(void);
-
+void vrna_message_input_seq_simple(void);
 
 /**
  *  @brief Print a line with a user defined string and a ruler to stdout.
@@ -446,12 +402,8 @@ vrna_message_input_seq_simple(void);
  *
  *  @param s A user defined string that will be printed to stdout
  */
-void
-vrna_message_input_seq(const char *s);
+void vrna_message_input_seq(const char* s);
 
+void vrna_message_input_msa(const char* s);
 
-void
-vrna_message_input_msa(const char *s);
-
-}
-
+}  // namespace thermorna::viennarna

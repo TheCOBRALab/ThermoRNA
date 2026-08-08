@@ -1,5 +1,5 @@
 #pragma once
-  
+
 #include "Knotergy/utils/Report.hpp"
 
 #include <nlohmann/json.hpp>
@@ -137,7 +137,8 @@ class PseudoknotParams {
      * @return Loaded pk_param structure.
      * @throws DetailedException if file not found or invalid.
      */
-    [[nodiscard]] static pk_param load_pk_param(const std::string& paramFile, RoundMethod round_method = RoundMethod::None);
+    [[nodiscard]] static pk_param load_pk_param(const std::string& paramFile,
+                                                RoundMethod round_method = RoundMethod::None);
 
     /**
      * @brief Parse pseudoknot parameters from a JSON file.
@@ -146,7 +147,8 @@ class PseudoknotParams {
      * @return Parsed pk_param structure.
      * @throws DetailedException if file cannot be opened or parsed.
      */
-    [[nodiscard]] static pk_param parse_pk_json(const std::string& jsonFile, RoundMethod round_method = RoundMethod::None);
+    [[nodiscard]] static pk_param parse_pk_json(const std::string& jsonFile,
+                                                RoundMethod round_method = RoundMethod::None);
 };
 
-}  // namespace knotergy
+}  // namespace thermorna::knotergy

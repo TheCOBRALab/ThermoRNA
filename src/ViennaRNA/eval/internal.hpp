@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ViennaRNA/utils/basic.hpp"
+#include "ViennaRNA/params/basic.hpp"
 
 #ifdef __GNUC__
-# define INLINE inline
+#define INLINE inline
 #else
-# define INLINE
+#define INLINE
 #endif
 namespace thermorna::viennarna {
 /**
@@ -54,14 +54,6 @@ namespace thermorna::viennarna {
  *  @param  P       The datastructure containing scaled energy parameters
  *  @return The Free energy of the internal loop in dcal/mol
  */
-int
-vrna_E_internal(unsigned int  n1,
-                unsigned int  n2,
-                unsigned int  type,
-                unsigned int  type_2,
-                int           si1,
-                int           sj1,
-                int           sp1,
-                int           sq1,
-                vrna_param_t  *P);
-} // namespace thermorna::viennarna
+int vrna_E_internal(unsigned int n1, unsigned int n2, unsigned int type, unsigned int type_2,
+                    int si1, int sj1, int sp1, int sq1, vrna_param_t* P);
+}  // namespace thermorna::viennarna

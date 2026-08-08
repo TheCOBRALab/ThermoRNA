@@ -32,4 +32,4 @@ struct ParameterLoadReport {
     ParamSourceInfo modified_bases;
 };
 
-}  // namespace knotergy
+}  // namespace thermorna::knotergy
