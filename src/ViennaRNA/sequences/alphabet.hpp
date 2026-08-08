@@ -1,5 +1,4 @@
-#ifndef VIENNA_RNA_PACKAGE_SEQUENCES_ALPHABET_H
-#define VIENNA_RNA_PACKAGE_SEQUENCES_ALPHABET_H
+#pragma once
 
 #ifdef VRNA_WARN_DEPRECATED
 # if defined(__clang__)
@@ -114,5 +113,4 @@ vrna_get_ptype_window(int   i,
                       int   j,
                       char  **ptype);
 
-#endif
 }
