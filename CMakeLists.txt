@@ -2,7 +2,7 @@ cmake_minimum_required(
     VERSION 3.15)
 
 project(ThermoRNA
-    VERSION 0.0.1
+    VERSION 0.0.2
     LANGUAGES CXX
     DESCRIPTION "ThermoRNA: A C++ library for processing thermodynamic data of RNA structures and their energy calculations."
 )
@@ -128,39 +128,43 @@ endif()
 #     FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 # )
 
-# ------------------------- clang-format -------------------------
+# -------------------------------------------------------------------
+# clang-format
+# -------------------------------------------------------------------
 
-find_program(CLANG_FORMAT_EXE NAMES clang-format)
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    find_program(CLANG_FORMAT_EXE NAMES clang-format)
 
-file(GLOB_RECURSE THERMORNA_FORMAT_FILES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp"
-)
-
-if(CLANG_FORMAT_EXE)
-    add_custom_target(format
-        COMMAND ${CLANG_FORMAT_EXE} -i ${THERMORNA_FORMAT_FILES}
-        COMMENT "Formatting C++ source files with clang-format"
-        VERBATIM
+    file(GLOB_RECURSE THERMORNA_FORMAT_FILES CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test/*.hpp"
     )
 
-    add_custom_target(format-check
-        COMMAND ${CLANG_FORMAT_EXE} --dry-run --Werror ${THERMORNA_FORMAT_FILES}
-        COMMENT "Checking C++ source formatting with clang-format"
-        VERBATIM
-    )
-else()
-    add_custom_target(format
-        COMMAND ${CMAKE_COMMAND} -E echo "clang-format not found"
-        COMMAND ${CMAKE_COMMAND} -E false
-        VERBATIM
-    )
+    if(CLANG_FORMAT_EXE)
+        add_custom_target(format
+            COMMAND ${CLANG_FORMAT_EXE} -i ${THERMORNA_FORMAT_FILES}
+            COMMENT "Formatting C++ source files with clang-format"
+            VERBATIM
+        )
 
-    add_custom_target(format-check
-        COMMAND ${CMAKE_COMMAND} -E echo "clang-format not found"
-        COMMAND ${CMAKE_COMMAND} -E false
-        VERBATIM
-    )
+        add_custom_target(format-check
+            COMMAND ${CLANG_FORMAT_EXE} --dry-run --Werror ${THERMORNA_FORMAT_FILES}
+            COMMENT "Checking C++ source formatting with clang-format"
+            VERBATIM
+        )
+    else()
+        add_custom_target(format
+            COMMAND ${CMAKE_COMMAND} -E echo "clang-format not found"
+            COMMAND ${CMAKE_COMMAND} -E false
+            VERBATIM
+        )
+
+        add_custom_target(format-check
+            COMMAND ${CMAKE_COMMAND} -E echo "clang-format not found"
+            COMMAND ${CMAKE_COMMAND} -E false
+            VERBATIM
+        )
+    endif()
 endif()
