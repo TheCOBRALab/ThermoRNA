@@ -103,7 +103,7 @@ get_array1(char   **content,
            int    size);
 
 
-void
+bool
 ignore_comment(char *line);
 
 
@@ -757,7 +757,9 @@ get_array1(char   **content,
       return (char *)"unexpected end of file in get_array1";
     }
 
-    ignore_comment(line);
+    if (!ignore_comment(line))
+      return line;
+
     pos = 0;
     while ((i < size) && (sscanf(line + pos, "%15s%n", buf, &pp) == 1)) {
       pos += pp;
@@ -1142,7 +1144,7 @@ rd_Triloop37(char   **content,
 /*------------------------------------------------------------*/
 
 
-void
+bool
 ignore_comment(char *line)
 {
   /*
@@ -1155,7 +1157,7 @@ ignore_comment(char *line)
     cp2 = strstr(cp1, "*/");
     if (cp2 == NULL) {
       vrna_log_error("unclosed comment in parameter file");
-      return;
+      return false;
     }
 
     /* can't use strcpy for overlapping strings */
@@ -1164,7 +1166,7 @@ ignore_comment(char *line)
     *cp1 = '\0';
   }
 
-  return;
+  return true;
 }
 
 
