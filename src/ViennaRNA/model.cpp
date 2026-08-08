@@ -1,5 +1,5 @@
 #include "ViennaRNA/model.hpp"
-#include "ViennaRNA/loading_params/params/constants.hpp"
+#include "ViennaRNA/params/constants.hpp"
 #include "ViennaRNA/utils/utils.hpp"
 
 

@@ -5,9 +5,9 @@
 #include <cstring>
 
 #include "ViennaRNA/eval/hairpin.hpp"
-#include "ViennaRNA/loading_params/params/salt.hpp"
-#include "ViennaRNA/loading_params/params/constants.hpp"
-#include "ViennaRNA/loading_params/params/basic.hpp"
+#include "ViennaRNA/params/salt.hpp"
+#include "ViennaRNA/params/constants.hpp"
+#include "ViennaRNA/params/basic.hpp"
 
 #ifdef __GNUC__
 # define INLINE inline

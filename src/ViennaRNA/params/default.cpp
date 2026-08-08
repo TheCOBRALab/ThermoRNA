@@ -48,7 +48,7 @@
 #include "config.h"
 #endif
 
-#include "ViennaRNA/loading_params/params/default.hpp"
+#include "ViennaRNA/params/default.hpp"
 
 namespace thermorna::viennarna {
 

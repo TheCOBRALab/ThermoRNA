@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ViennaRNA/loading_params/params/basic.hpp"
+#include "ViennaRNA/params/basic.hpp"
 
 #ifdef __GNUC__
 # define INLINE inline

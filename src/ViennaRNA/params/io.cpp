@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,44 +18,22 @@
 #include <cstdlib>
 
 #include "ViennaRNA/utils/utils.hpp"
-#include "ViennaRNA/loading_params/params/constants.hpp"
-#include "ViennaRNA/loading_params/params/default.hpp"
-#include "ViennaRNA/loading_params/io.hpp"
+#include "ViennaRNA/params/constants.hpp"
+#include "ViennaRNA/params/default.hpp"
+#include "ViennaRNA/params/io.hpp"
 
 namespace thermorna::viennarna {
 
 namespace {
 
-constexpr int DEF = -50;
-constexpr int NST = 0;
-
+#define DEF -50
+#define NST 0
 #define DIRSEPC '/'
 #define DIRSEPS "/"
 
-enum class parset : int {
-    UNKNOWN = -1,
-    QUIT,
-    S, S_H,
-    HP, HP_H,
-    B, B_H,
-    IL, IL_H,
-    MMH, MMH_H,
-    MMI, MMI_H,
-    MMI1N, MMI1N_H,
-    MMI23, MMI23_H,
-    MMM, MMM_H,
-    MME, MME_H,
-    D5, D5_H,
-    D3, D3_H,
-    INT11, INT11_H,
-    INT21, INT21_H,
-    INT22, INT22_H,
-    ML, TL, TRI, HEX, NIN, MISC
-};
-
 /*
  #################################
- # INTERNAL VARIABLES            #
+ # VARIABLES             #
  #################################
  */
 
@@ -102,18 +81,11 @@ int   dangle_shift[2] = {
 
 /*
  #################################
- # INTERNAL FUNCTION DECLARATIONS #
+ # FUNCTION DECLARATIONS #
  #################################
  */
 
-const char *
-settype(parset s);
-
-parset
-gettype(const char *ident);
-
-char *
-vrna_basename(const char *path);
+char *vrna_basename(const char *path);
 
 char *vrna_read_line(FILE *fp);
 
@@ -141,8 +113,6 @@ check_symmetry(void);
 
 void
 update_nst(int array[NBPAIRS + 1][NBPAIRS + 1][5][5][5][5]);
-
-
 
 
 /**
@@ -236,8 +206,7 @@ rd_5dim_slice(char    **content,
               int     post[5]);
 
 
-
-[[maybe_unused]]
+[[maybe_unused]] 
 bool
 rd_6dim(char    **content,
         size_t  *line_no,
@@ -245,7 +214,7 @@ rd_6dim(char    **content,
         int     dim[6],
         int     shift[6]);
 
-
+        
 bool
 rd_6dim_slice(char    **content,
               size_t  *line_no,
@@ -271,7 +240,7 @@ rd_Hexaloop37(char    **content,
 
 
 int
-set_parameters_from_string(char  **file_content,
+set_parameters_from_string(char       **file_content,
                            const char *name);
 
 
@@ -283,15 +252,15 @@ int
 save_parameter_file(const char    fname[],
                     unsigned int  options);
 
-
 } // namespace
 
 /*
  #################################
- # CLASS MEMBER FUNCTIONS        #
+ # BEGIN OF FUNCTION DEFINITIONS #
  #################################
  */
-int ParameterIO::vrna_params_load(const char fname[],
+PUBLIC int
+vrna_params_load(const char   fname[],
                  [[maybe_unused]] unsigned int options)
 {
   char  *name, **file_content, **ptr;
@@ -317,17 +286,19 @@ int ParameterIO::vrna_params_load(const char fname[],
 }
 
 
-int
-ParameterIO::vrna_params_save(const char   fname[],
+PUBLIC int
+vrna_params_save(const char   fname[],
                  unsigned int options)
 {
   return save_parameter_file(fname, options);
 }
 
 
-
-[[maybe_unused]]
-int vrna_params_load_from_string(const char *string, const char *name, [[maybe_unused]] unsigned int options){
+PUBLIC int
+vrna_params_load_from_string(const char   *string,
+                             const char   *name,
+                             [[maybe_unused]] unsigned int options)
+{
   int ret = 0;
 
   if (string) {
@@ -340,21 +311,28 @@ int vrna_params_load_from_string(const char *string, const char *name, [[maybe_u
     /* convert string into array of lines */
     tmp_string = strdup(string);
 
-    token = strtok_r(tmp_string, "\n", &rest);
+    token = tmp_string;
 
-    while (token != NULL) {
+    /* tokenize the input string by separating lines at '\n' */
+    while (1) {
+      rest = strchr(token, '\n');
+      if (rest != NULL)
+        *rest = '\0';
+      else
+        break;
+
       if (lines == lines_mem) {
         lines_mem     += 32768;
-        params_array  = (char **)realloc(params_array, sizeof(char *) * lines_mem);
+        params_array  = (char **)vrna_realloc(params_array, sizeof(char *) * lines_mem);
       }
 
       params_array[lines++] = strdup(token);
 
-      token = strtok_r(NULL, "\n", &rest);
+      token = rest + 1;
     }
 
     /* reallocate to actual requirements */
-    params_array        = (char **)realloc(params_array, sizeof(char *) * (lines + 1));
+    params_array        = (char **)vrna_realloc(params_array, sizeof(char *) * (lines + 1));
     params_array[lines] = NULL;
 
     /* actually apply parameters */
@@ -374,67 +352,80 @@ int vrna_params_load_from_string(const char *string, const char *name, [[maybe_u
 }
 
 
-int
-ParameterIO::vrna_params_load_defaults(void)
+PUBLIC int
+vrna_params_load_defaults(void)
 {
-  return ParameterIO::vrna_params_load_RNA_Turner2004();
+  return vrna_params_load_RNA_Turner2004();
 }
 
 
-int
-ParameterIO::vrna_params_load_RNA_Turner2004(void)
+PUBLIC int
+vrna_params_load_RNA_Turner2004(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/rna_turner04.par", "RNA - Turner 2004", 0);
+  return vrna_params_load_from_string("rna_turner2004.par",
+                                      "RNA - Turner 2004",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_RNA_Turner1999(void)
+PUBLIC int
+vrna_params_load_RNA_Turner1999(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/rna_turner99.par", "RNA - Turner 1999", 0);
+  return vrna_params_load_from_string("rna_turner1999.par",
+                                      "RNA - Turner 1999",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_RNA_Andronescu2007(void)
+PUBLIC int
+vrna_params_load_RNA_Andronescu2007(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/rna_andronescu2007.par", "RNA - Andronescu 2007", 0);
+  return vrna_params_load_from_string("rna_andronescu2007.par",
+                                      "RNA - Andronescu 2007",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_RNA_Langdon2018(void)
+PUBLIC int
+vrna_params_load_RNA_Langdon2018(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/rna_langdon2018.par", "RNA - Langdon 2018", 0);
+  return vrna_params_load_from_string("rna_langdon2018.par",
+                                      "RNA - Langdon 2018",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_RNA_misc_special_hairpins(void)
+PUBLIC int
+vrna_params_load_RNA_misc_special_hairpins(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/rna_misc_special_hairpins.par","RNA - Misc. Special Hairpins", 0);
+  return vrna_params_load_from_string("rna_misc_special_hairpins.par",
+                                      "RNA - Misc. Special Hairpins",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_DNA_Mathews2004(void)
+PUBLIC int
+vrna_params_load_DNA_Mathews2004(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/dna_mathews04.par", "DNA - Mathews 2004", 0);
+  return vrna_params_load_from_string("dna_mathews2004.par",
+                                      "DNA - Mathews 2004",
+                                      0);
 }
 
 
-int
-ParameterIO::vrna_params_load_DNA_Mathews1999(void)
+PUBLIC int
+vrna_params_load_DNA_Mathews1999(void)
 {
-  return ParameterIO::vrna_params_load_from_string("params/dna_mathews1999.par", "DNA - Mathews 1999", 0);
+  return vrna_params_load_from_string("dna_mathews1999.par",
+                                      "DNA - Mathews 1999",
+                                      0);
 }
-
 
 namespace {
 
 /*
  #####################################
- # INTERNAL HELPER FUNCTIONS         #
+ # BEGIN OF STATIC HELPER FUNCTIONS  #
  #####################################
  */
 char **
@@ -450,13 +441,13 @@ file2array(const char fname[])
     lines_num = 0;
     lines_mem = 32768;
 
-    content = (char **)calloc(1, sizeof(char *) * lines_mem);
+    content = (char **)vrna_alloc(sizeof(char *) * lines_mem);
 
     /* read file line-by-line */
     while ((line = vrna_read_line(fp))) {
       if (lines_num == lines_mem) {
         lines_mem += 32768;
-        content   = (char **)realloc(content, sizeof(char *) * lines_mem);
+        content   = (char **)vrna_realloc(content, sizeof(char *) * lines_mem);
       }
 
       content[lines_num] = line;
@@ -464,7 +455,7 @@ file2array(const char fname[])
     }
 
     /* reallocate to actual requirements */
-    content             = (char **)realloc(content, sizeof(char *) * (lines_num + 1));
+    content             = (char **)vrna_realloc(content, sizeof(char *) * (lines_num + 1));
     content[lines_num]  = NULL;
 
     fclose(fp);
@@ -476,7 +467,7 @@ file2array(const char fname[])
 
   return content;
 }
-  
+
 
 int
 set_parameters_from_string(char       **file_content,
@@ -484,7 +475,7 @@ set_parameters_from_string(char       **file_content,
 {
   size_t      line_no;
   char        *line, ident[256];
-  parset type;
+  enum parset type;
   int         r;
 
   line_no = 0;
@@ -508,113 +499,113 @@ set_parameters_from_string(char       **file_content,
     if (r == 1) {
       type = gettype(ident);
       switch (type) {
-        case parset::QUIT:
+        case QUIT:
           break;
-        case parset::S:
+        case S:
           success &= rd_2dim(file_content, &line_no, &(stack37[0][0]), stack_dim, stack_shift);
           break;
-        case parset::S_H:
+        case S_H:
           success &= rd_2dim(file_content, &line_no, &(stackdH[0][0]), stack_dim, stack_shift);
           break;
-        case parset::HP:
+        case HP:
           success &= rd_1dim(file_content, &line_no, &(hairpin37[0]), 31, 0);
           break;
-        case parset::HP_H:
+        case HP_H:
           success &= rd_1dim(file_content, &line_no, &(hairpindH[0]), 31, 0);
           break;
-        case parset::B:
+        case B:
           success &= rd_1dim(file_content, &line_no, &(bulge37[0]), 31, 0);
           break;
-        case parset::B_H:
+        case B_H:
           success &= rd_1dim(file_content, &line_no, &(bulgedH[0]), 31, 0);
           break;
-        case parset::IL:
+        case IL:
           success &= rd_1dim(file_content, &line_no, &(internal_loop37[0]), 31, 0);
           break;
-        case parset::IL_H:
+        case IL_H:
           success &= rd_1dim(file_content, &line_no, &(internal_loopdH[0]), 31, 0);
           break;
-        case parset::MME:
+        case MME:
           success &= rd_3dim(file_content, &line_no, &(mismatchExt37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MME_H:
+        case MME_H:
           success &= rd_3dim(file_content, &line_no, &(mismatchExtdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMH:
+        case MMH:
           success &= rd_3dim(file_content, &line_no, &(mismatchH37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMH_H:
+        case MMH_H:
           success &= rd_3dim(file_content, &line_no, &(mismatchHdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI:
+        case MMI:
           success &= rd_3dim(file_content, &line_no, &(mismatchI37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI_H:
+        case MMI_H:
           success &= rd_3dim(file_content, &line_no, &(mismatchIdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI1N:
+        case MMI1N:
           success &= rd_3dim(file_content, &line_no, &(mismatch1nI37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI1N_H:
+        case MMI1N_H:
           success &= rd_3dim(file_content, &line_no, &(mismatch1nIdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI23:
+        case MMI23:
           success &= rd_3dim(file_content, &line_no, &(mismatch23I37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMI23_H:
+        case MMI23_H:
           success &= rd_3dim(file_content, &line_no, &(mismatch23IdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMM:
+        case MMM:
           success &= rd_3dim(file_content, &line_no, &(mismatchM37[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::MMM_H:
+        case MMM_H:
           success &= rd_3dim(file_content, &line_no, &(mismatchMdH[0][0][0]),
                   mismatch_dim,
                   mismatch_shift);
           break;
-        case parset::INT11:
+        case INT11:
           success &= rd_4dim(file_content, &line_no, &(int11_37[0][0][0][0]),
                   int11_dim,
                   int11_shift);
           break;
-        case parset::INT11_H:
+        case INT11_H:
           success &= rd_4dim(file_content, &line_no, &(int11_dH[0][0][0][0]),
                   int11_dim,
                   int11_shift);
           break;
-        case parset::INT21:
+        case INT21:
           success &= rd_5dim(file_content, &line_no, &(int21_37[0][0][0][0][0]),
                   int21_dim,
                   int21_shift);
           break;
-        case parset::INT21_H:
+        case INT21_H:
           success &= rd_5dim(file_content, &line_no, &(int21_dH[0][0][0][0][0]),
                   int21_dim,
                   int21_shift);
           break;
-        case parset::INT22:
+        case INT22:
         {
           bool ok = rd_6dim_slice(file_content, &line_no, &(int22_37[0][0][0][0][0][0]),
                         int22_dim,
@@ -624,7 +615,7 @@ set_parameters_from_string(char       **file_content,
           if (ok) update_nst(int22_37);
         }
           break;
-        case parset::INT22_H:
+        case INT22_H:
         {
           bool ok = rd_6dim_slice(file_content, &line_no, &(int22_dH[0][0][0][0][0][0]),
                         int22_dim,
@@ -634,27 +625,27 @@ set_parameters_from_string(char       **file_content,
           if (ok) update_nst(int22_dH);
         }
           break;
-        case parset::D5:
+        case D5:
           success &= rd_2dim(file_content, &line_no, &(dangle5_37[0][0]),
                   dangle_dim,
                   dangle_shift);
           break;
-        case parset::D5_H:
+        case D5_H:
           success &= rd_2dim(file_content, &line_no, &(dangle5_dH[0][0]),
                   dangle_dim,
                   dangle_shift);
           break;
-        case parset::D3:
+        case D3:
           success &= rd_2dim(file_content, &line_no, &(dangle3_37[0][0]),
                   dangle_dim,
                   dangle_shift);
           break;
-        case parset::D3_H:
+        case D3_H:
           success &= rd_2dim(file_content, &line_no, &(dangle3_dH[0][0]),
                   dangle_dim,
                   dangle_shift);
           break;
-        case parset::ML:
+        case ML:
         {
           int values[6];
           bool ok = rd_1dim(file_content, &line_no, &values[0], 6, 0);
@@ -668,7 +659,7 @@ set_parameters_from_string(char       **file_content,
           ML_interndH   = values[5];
         }
         break;
-        case parset::NIN:
+        case NIN:
         {
           int values[3];
           bool ok = rd_1dim(file_content, &line_no, &values[0], 3, 0);
@@ -679,7 +670,7 @@ set_parameters_from_string(char       **file_content,
           MAX_NINIO = values[2];
         }
         break;
-        case parset::MISC:
+        case MISC:
         {
           int values[4];
           bool ok = rd_1dim(file_content, &line_no, &values[0], 4, 0);
@@ -691,13 +682,13 @@ set_parameters_from_string(char       **file_content,
           TerminalAUdH  = values[3];
         }
         break;
-        case parset::TL:
+        case TL:
           rd_Tetraloop37(file_content, &line_no);
           break;
-        case parset::TRI:
+        case TRI:
           rd_Triloop37(file_content, &line_no);
           break;
-        case parset::HEX:
+        case HEX:
           rd_Hexaloop37(file_content, &line_no);
           break;
         default:      /* do nothing but complain */
@@ -1014,8 +1005,7 @@ rd_5dim_slice(char    **content,
 *** \param dim1   The size of the first dimension
 *** \param shift1 The pre shift for the first dimension
 **/
-bool
-rd_6dim(char    **content,
+bool rd_6dim(char **content,
         size_t  *line_no,
         int     *array,
         int     dim[6],
@@ -1356,11 +1346,14 @@ update_nst(int array[NBPAIRS + 1][NBPAIRS + 1][5][5][5][5])
   }
 }
 
-int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  options)
+
+int
+save_parameter_file(const char    fname[],
+                    [[maybe_unused]] unsigned int  options )
 {
   FILE  *outfp;
   size_t   c;
-  const char *pnames[] = {
+  const char  *pnames[] = {
     "NP", "CG", "GC", "GU", "UG", "AU", "UA", " @"
   };
   const char  bnames[] = "@ACGU";
@@ -1373,17 +1366,17 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
 
   fprintf(outfp, "## RNAfold parameter file v2.0\n");
 
-  fprintf(outfp, "\n# %s\n", settype(parset::S));
+  fprintf(outfp, "\n# %s\n", settype(S));
   fprintf(outfp, "/*  CG    GC    GU    UG    AU    UA    @  */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(stack37[c] + 1, NBPAIRS, NBPAIRS, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::S_H));
+  fprintf(outfp, "\n# %s\n", settype(S_H));
   fprintf(outfp, "/*  CG    GC    GU    UG    AU    UA    @  */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(stackdH[c] + 1, NBPAIRS, NBPAIRS, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMH));
+  fprintf(outfp, "\n# %s\n", settype(MMH));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1391,7 +1384,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchH37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMH_H));
+  fprintf(outfp, "\n# %s\n", settype(MMH_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1399,7 +1392,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchHdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI));
+  fprintf(outfp, "\n# %s\n", settype(MMI));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1407,7 +1400,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchI37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI_H));
+  fprintf(outfp, "\n# %s\n", settype(MMI_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1415,7 +1408,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchIdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI1N));
+  fprintf(outfp, "\n# %s\n", settype(MMI1N));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1423,7 +1416,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatch1nI37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI1N_H));
+  fprintf(outfp, "\n# %s\n", settype(MMI1N_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1431,7 +1424,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatch1nIdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI23));
+  fprintf(outfp, "\n# %s\n", settype(MMI23));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1439,7 +1432,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatch23I37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMI23_H));
+  fprintf(outfp, "\n# %s\n", settype(MMI23_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1447,7 +1440,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatch23IdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMM));
+  fprintf(outfp, "\n# %s\n", settype(MMM));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1455,7 +1448,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchM37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MMM_H));
+  fprintf(outfp, "\n# %s\n", settype(MMM_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1463,7 +1456,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchMdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MME));
+  fprintf(outfp, "\n# %s\n", settype(MME));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1471,7 +1464,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchExt37[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MME_H));
+  fprintf(outfp, "\n# %s\n", settype(MME_H));
   {
     size_t i, k;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1479,29 +1472,29 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         display_array(mismatchExtdH[k][i], 5, 5, outfp);
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::D5));
+  fprintf(outfp, "\n# %s\n", settype(D5));
   fprintf(outfp, "/*  @     A     C     G     U   */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(dangle5_37[c], 5, 5, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::D5_H));
+  fprintf(outfp, "\n# %s\n", settype(D5_H));
   fprintf(outfp, "/*  @     A     C     G     U   */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(dangle5_dH[c], 5, 5, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::D3));
+  fprintf(outfp, "\n# %s\n", settype(D3));
   fprintf(outfp, "/*  @     A     C     G     U   */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(dangle3_37[c], 5, 5, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::D3_H));
+  fprintf(outfp, "\n# %s\n", settype(D3_H));
   fprintf(outfp, "/*  @     A     C     G     U   */\n");
   for (c = 1; c < NBPAIRS + 1; c++)
     display_array(dangle3_dH[c], 5, 5, outfp);
 
 
   /* dont print "no pair" entries for internal loop arrays */
-  fprintf(outfp, "\n# %s\n", settype(parset::INT11));
+  fprintf(outfp, "\n# %s\n", settype(INT11));
   {
     size_t i, k, l;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1512,7 +1505,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
       }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::INT11_H));
+  fprintf(outfp, "\n# %s\n", settype(INT11_H));
   {
     size_t i, k, l;
     for (k = 1; k < NBPAIRS + 1; k++)
@@ -1523,7 +1516,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
       }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::INT21));
+  fprintf(outfp, "\n# %s\n", settype(INT21));
   {
     size_t p1, p2, i, j;
     for (p1 = 1; p1 < NBPAIRS + 1; p1++)
@@ -1536,7 +1529,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::INT21_H));
+  fprintf(outfp, "\n# %s\n", settype(INT21_H));
   {
     size_t p1, p2, i, j;
     for (p1 = 1; p1 < NBPAIRS + 1; p1++)
@@ -1549,7 +1542,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
         }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::INT22));
+  fprintf(outfp, "\n# %s\n", settype(INT22));
   {
     size_t p1, p2, i, j, k;
     for (p1 = 1; p1 < NBPAIRS; p1++)
@@ -1563,7 +1556,7 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
           }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::INT22_H));
+  fprintf(outfp, "\n# %s\n", settype(INT22_H));
   {
     size_t p1, p2, i, j, k;
     for (p1 = 1; p1 < NBPAIRS; p1++)
@@ -1577,25 +1570,25 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
           }
   }
 
-  fprintf(outfp, "\n# %s\n", settype(parset::HP));
+  fprintf(outfp, "\n# %s\n", settype(HP));
   display_array(hairpin37, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::HP_H));
+  fprintf(outfp, "\n# %s\n", settype(HP_H));
   display_array(hairpindH, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::B));
+  fprintf(outfp, "\n# %s\n", settype(B));
   display_array(bulge37, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::B_H));
+  fprintf(outfp, "\n# %s\n", settype(B_H));
   display_array(bulgedH, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::IL));
+  fprintf(outfp, "\n# %s\n", settype(IL));
   display_array(internal_loop37, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::IL_H));
+  fprintf(outfp, "\n# %s\n", settype(IL_H));
   display_array(internal_loopdH, 31, 10, outfp);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::ML));
+  fprintf(outfp, "\n# %s\n", settype(ML));
   fprintf(outfp, "/* F = cu*n_unpaired + cc + ci*loop_degree (+TermAU) */\n");
   fprintf(outfp, "/*\t    cu\t cu_dH\t    cc\t cc_dH\t    ci\t ci_dH  */\n");
   fprintf(outfp,
@@ -1607,12 +1600,12 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
           ML_intern37,
           ML_interndH);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::NIN));
+  fprintf(outfp, "\n# %s\n", settype(NIN));
   fprintf(outfp, "/* Ninio = MIN(max, m*|n1-n2| */\n"
           "/*\t    m\t  m_dH     max  */\n"
           "\t%6d\t%6d\t%6d\n", ninio37, niniodH, MAX_NINIO);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::MISC));
+  fprintf(outfp, "\n# %s\n", settype(MISC));
   fprintf(outfp, "/* all parameters are pairs of 'energy enthalpy' */\n");
   fprintf(outfp, "/*    DuplexInit     TerminalAU      LXC */\n");
   fprintf(outfp,
@@ -1624,222 +1617,24 @@ int save_parameter_file(const char fname[], [[maybe_unused]] unsigned int  optio
           lxc37,
           0);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::HEX));
+  fprintf(outfp, "\n# %s\n", settype(HEX));
   for (c = 0; c < strlen(Hexaloops) / 9; c++)
     fprintf(outfp, "\t%.8s %6d %6d\n", Hexaloops + c * 9, Hexaloop37[c], HexaloopdH[c]);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::TL));
+  fprintf(outfp, "\n# %s\n", settype(TL));
   for (c = 0; c < strlen(Tetraloops) / 7; c++)
     fprintf(outfp, "\t%.6s %6d %6d\n", Tetraloops + c * 7, Tetraloop37[c], TetraloopdH[c]);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::TRI));
+  fprintf(outfp, "\n# %s\n", settype(TRI));
   for (c = 0; c < strlen(Triloops) / 6; c++)
     fprintf(outfp, "\t%.5s %6d %6d\n", Triloops + c * 6, Triloop37[c], TriloopdH[c]);
 
-  fprintf(outfp, "\n# %s\n", settype(parset::QUIT));
+  fprintf(outfp, "\n# %s\n", settype(QUIT));
   fclose(outfp);
 
   return 1;
 }
 
-
-/*
- #################################
- # INTERNAL FORMAT HELPERS       #
- #################################
- */
-
-const char *
-settype(parset s)
-{
-  switch (s) {
-    case      parset::S:
-      return "stack";
-    case      parset::S_H:
-      return "stack_enthalpies";
-    case      parset::HP:
-      return "hairpin";
-    case      parset::HP_H:
-      return "hairpin_enthalpies";
-    case      parset::B:
-      return "bulge";
-    case      parset::B_H:
-      return "bulge_enthalpies";
-    case      parset::IL:
-      return "internal";
-    case      parset::IL_H:
-      return "internal_enthalpies";
-    case      parset::MME:
-      return "mismatch_exterior";
-    case      parset::MME_H:
-      return "mismatch_exterior_enthalpies";
-    case      parset::MMH:
-      return "mismatch_hairpin";
-    case      parset::MMH_H:
-      return "mismatch_hairpin_enthalpies";
-    case      parset::MMI:
-      return "mismatch_internal";
-    case      parset::MMI_H:
-      return "mismatch_internal_enthalpies";
-    case      parset::MMI1N:
-      return "mismatch_internal_1n";
-    case      parset::MMI1N_H:
-      return "mismatch_internal_1n_enthalpies";
-    case      parset::MMI23:
-      return "mismatch_internal_23";
-    case      parset::MMI23_H:
-      return "mismatch_internal_23_enthalpies";
-    case      parset::MMM:
-      return "mismatch_multi";
-    case      parset::MMM_H:
-      return "mismatch_multi_enthalpies";
-    case      parset::D5:
-      return "dangle5";
-    case      parset::D5_H:
-      return "dangle5_enthalpies";
-    case      parset::D3:
-      return "dangle3";
-    case      parset::D3_H:
-      return "dangle3_enthalpies";
-    case      parset::INT11:
-      return "int11";
-    case      parset::INT11_H:
-      return "int11_enthalpies";
-    case      parset::INT21:
-      return "int21";
-    case      parset::INT21_H:
-      return "int21_enthalpies";
-    case      parset::INT22:
-      return "int22";
-    case      parset::INT22_H:
-      return "int22_enthalpies";
-    case      parset::ML:
-      return "ML_params";
-    case      parset::NIN:
-      return "NINIO";
-    case      parset::TRI:
-      return "Triloops";
-    case      parset::TL:
-      return "Tetraloops";
-    case      parset::HEX:
-      return "Hexaloops";
-    case      parset::QUIT:
-      return "END";
-    case      parset::MISC:
-      return "Misc";
-    default:
-      vrna_log_error("\nThe answer is: 42\n");
-  }
-  return "";
-}
-
-
-/*------------------------------------------------------------*/
-
-parset gettype(const char *ident)
-{
-  if (strcmp(ident, "stack") == 0) {
-    return parset::S;
-  } else if (strcmp(ident, "stack_enthalpies") == 0) {
-    return parset::S_H;
-  } else if (strcmp(ident, "hairpin") == 0) {
-    return parset::HP;
-  } else if (strcmp(ident, "hairpin_enthalpies") == 0) {
-    return parset::HP_H;
-  } else if (strcmp(ident, "bulge") == 0) {
-    return parset::B;
-  } else if (strcmp(ident, "bulge_enthalpies") == 0) {
-    return parset::B_H;
-  } else if (strcmp(ident, "interior") == 0) {
-    vrna_log_warning("Detected deprecated identifier 'interior'! Use 'internal' instead!");
-    return parset::IL;
-  } else if (strcmp(ident, "interior_enthalpies") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'interior_enthalpies'! Use 'internal_enthalpies' instead!");
-    return parset::IL_H;
-  } else if (strcmp(ident, "internal") == 0) {
-    return parset::IL;
-  } else if (strcmp(ident, "internal_enthalpies") == 0) {
-    return parset::IL_H;
-  } else if (strcmp(ident, "mismatch_exterior") == 0) {
-    return parset::MME;
-  } else if (strcmp(ident, "mismatch_exterior_enthalpies") == 0) {
-    return parset::MME_H;
-  } else if (strcmp(ident, "mismatch_hairpin") == 0) {
-    return parset::MMH;
-  } else if (strcmp(ident, "mismatch_hairpin_enthalpies") == 0) {
-    return parset::MMH_H;
-  } else if (strcmp(ident, "mismatch_interior") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior'! Use 'mismatch_internal' instead!");
-    return parset::MMI;
-  } else if (strcmp(ident, "mismatch_interior_enthalpies") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior_enthalpies'! Use 'mismatch_internal_enthalpies' instead!");
-    return parset::MMI_H;
-  } else if (strcmp(ident, "mismatch_interior_1n") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior_1n'! Use 'mismatch_internal_1n' instead!");
-    return parset::MMI1N;
-  } else if (strcmp(ident, "mismatch_interior_1n_enthalpies") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior_1n_enthalpies'! Use 'mismatch_internal_1n_enthalpies' instead!");
-    return parset::MMI1N_H;
-  } else if (strcmp(ident, "mismatch_interior_23") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior_23'! Use 'mismatch_internal_23' instead!");
-    return parset::MMI23;
-  } else if (strcmp(ident, "mismatch_interior_23_enthalpies") == 0) {
-    vrna_log_warning("Detected  deprecated identifier 'mismatch_interior_23_enthalpies'! Use 'mismatch_internal_23_enthalpies' instead!");
-    return parset::MMI23_H;
-  } else if (strcmp(ident, "mismatch_internal") == 0) {
-    return parset::MMI;
-  } else if (strcmp(ident, "mismatch_internal_enthalpies") == 0) {
-    return parset::MMI_H;
-  } else if (strcmp(ident, "mismatch_internal_1n") == 0) {
-    return parset::MMI1N;
-  } else if (strcmp(ident, "mismatch_internal_1n_enthalpies") == 0) {
-    return parset::MMI1N_H;
-  } else if (strcmp(ident, "mismatch_internal_23") == 0) {
-    return parset::MMI23;
-  } else if (strcmp(ident, "mismatch_internal_23_enthalpies") == 0) {
-    return parset::MMI23_H;
-  } else if (strcmp(ident, "mismatch_multi") == 0) {
-    return parset::MMM;
-  } else if (strcmp(ident, "mismatch_multi_enthalpies") == 0) {
-    return parset::MMM_H;
-  } else if (strcmp(ident, "int11") == 0) {
-    return parset::INT11;
-  } else if (strcmp(ident, "int11_enthalpies") == 0) {
-    return parset::INT11_H;
-  } else if (strcmp(ident, "int21") == 0) {
-    return parset::INT21;
-  } else if (strcmp(ident, "int21_enthalpies") == 0) {
-    return parset::INT21_H;
-  } else if (strcmp(ident, "int22") == 0) {
-    return parset::INT22;
-  } else if (strcmp(ident, "int22_enthalpies") == 0) {
-    return parset::INT22_H;
-  } else if (strcmp(ident, "dangle5") == 0) {
-    return parset::D5;
-  } else if (strcmp(ident, "dangle5_enthalpies") == 0) {
-    return parset::D5_H;
-  } else if (strcmp(ident, "dangle3") == 0) {
-    return parset::D3;
-  } else if (strcmp(ident, "dangle3_enthalpies") == 0) {
-    return parset::D3_H;
-  } else if (strcmp(ident, "ML_params") == 0) {
-    return parset::ML;
-  } else if (strcmp(ident, "NINIO") == 0) {
-    return parset::NIN;
-  } else if (strcmp(ident, "Triloops") == 0) {
-    return parset::TRI;
-  } else if (strcmp(ident, "Tetraloops") == 0) {
-    return parset::TL;
-  } else if (strcmp(ident, "Hexaloops") == 0) {
-    return parset::HEX;
-  } else if (strcmp(ident, "Misc") == 0) {
-    return parset::MISC;
-  } else if (strcmp(ident, "END") == 0) {
-    return parset::QUIT;
-  } else {
-    return parset::UNKNOWN;
-  }
-}
 
 char *vrna_basename(const char *path) {
     char *name;
@@ -1887,7 +1682,5 @@ char *vrna_read_line(FILE *fp) {
     return line;
 }
 
-
 } // namespace
-
 } // namespace thermorna::viennarna

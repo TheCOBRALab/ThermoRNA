@@ -6,8 +6,8 @@
 #include <math.h>
 #include "ViennaRNA/utils/basic.hpp"
 #include "ViennaRNA/model.hpp"
-#include "ViennaRNA/loading_params/params/constants.hpp"
-#include "ViennaRNA/loading_params/params/salt.hpp"
+#include "ViennaRNA/params/constants.hpp"
+#include "ViennaRNA/params/salt.hpp"
 
 #ifdef __GNUC__
 # define INLINE inline

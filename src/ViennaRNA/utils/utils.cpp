@@ -1,5 +1,5 @@
 #include "ViennaRNA/utils/utils.hpp"
-#include "ViennaRNA/loading_params/array.hpp"
+#include "ViennaRNA/datastructures/array.hpp"
 #include <ctime>
 #include <unistd.h>
 

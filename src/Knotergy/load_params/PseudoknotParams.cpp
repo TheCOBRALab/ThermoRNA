@@ -1,4 +1,4 @@
-#include "Knotergy/PseudoknotParams.hpp"
+#include "PseudoknotParams.hpp"
 #include "Knotergy/utils/FileUtils.hpp"
 #include "Knotergy/utils/common.hpp"
 #include "Knotergy/utils/colors.hpp"

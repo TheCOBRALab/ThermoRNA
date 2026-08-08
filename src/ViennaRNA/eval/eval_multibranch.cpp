@@ -7,7 +7,7 @@
 #include "config.h"
 #endif
 
-#include "ViennaRNA/loading_params/params/default.hpp"
+#include "ViennaRNA/params/default.hpp"
 #include "ViennaRNA/eval/multibranch.hpp"
 
 #ifdef __GNUC__

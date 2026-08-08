@@ -3,8 +3,8 @@
 #endif
 
 #include "exterior.hpp"
-#include "ViennaRNA/loading_params/params/default.hpp"
-#include "ViennaRNA/loading_params/params/basic.hpp"
+#include "ViennaRNA/params/default.hpp"
+#include "ViennaRNA/params/basic.hpp"
 
 
 namespace thermorna::viennarna {

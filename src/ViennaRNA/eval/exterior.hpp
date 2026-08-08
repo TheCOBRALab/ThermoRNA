@@ -1,5 +1,5 @@
 #pragma once
-#include "ViennaRNA/loading_params/params/basic.hpp"
+#include "ViennaRNA/params/basic.hpp"
 
 namespace thermorna::viennarna {
 /**

@@ -2,10 +2,10 @@
 #include "config.h"
 #endif
 
-#include "ViennaRNA/loading_params/params/basic.hpp"
+#include "ViennaRNA/params/basic.hpp"
 #include "ViennaRNA/eval/internal.hpp"
-#include "ViennaRNA/loading_params/params/default.hpp"
-#include "ViennaRNA/loading_params/params/salt.hpp"
+#include "ViennaRNA/params/default.hpp"
+#include "ViennaRNA/params/salt.hpp"
 
 namespace thermorna::viennarna {
 PUBLIC int vrna_E_internal(unsigned int  n1,
