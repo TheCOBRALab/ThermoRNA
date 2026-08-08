@@ -26,36 +26,13 @@
  *  @brief  Functions to cope with various aspects related to the nucleotide sequence alphabet
  */
 
-#include <ViennaRNA/fold_compound.h>
-#include <ViennaRNA/model.h>
+#include "ViennaRNA/model.hpp"
 
 namespace thermorna::viennarna {
-unsigned int
-vrna_sequence_length_max(unsigned int options);
-
 
 int
 vrna_nucleotide_IUPAC_identity(char a,
                                char b);
-
-
-void
-vrna_ptypes_prepare(vrna_fold_compound_t  *fc,
-                    unsigned int          options);
-
-
-/**
- *  @brief Get an array of the numerical encoding for each possible base pair (i,j)
- *
- *  @note This array is always indexed in column-wise order, in contrast to previously
- *        different indexing between mfe and pf variants!
- *
- *  @see  vrna_idx_col_wise(), #vrna_fold_compound_t
- *
- */
-char *
-vrna_ptypes(const short *S,
-            vrna_md_t   *md);
 
 
 /**

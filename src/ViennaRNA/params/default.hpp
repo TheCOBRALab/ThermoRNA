@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <ViennaRNA/params/constants.h>
+#include "ViennaRNA/params/constants.hpp"
 
 #define PUBLIC
 
