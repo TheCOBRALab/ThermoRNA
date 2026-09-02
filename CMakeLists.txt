@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(ThermoRNA
-    VERSION 0.1.2
+    VERSION 0.1.3
     LANGUAGES CXX
     DESCRIPTION "ThermoRNA: A C++ library for processing thermodynamic data of RNA structures and their energy calculations."
 )
@@ -15,15 +15,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ------------------------- Components -------------------------
 
-option(THERMORNA_KNOTERGY "Build the Knotergy components" ON)
+# option(THERMORNA_KNOTERGY "Build the Knotergy components" ON)
 option(THERMORNA_VIENNARNA "Build the ViennaRNA components" ON)
 
-if(NOT THERMORNA_KNOTERGY AND NOT THERMORNA_VIENNARNA)
-    message(FATAL_ERROR "At least one of THERMORNA_KNOTERGY or THERMORNA_VIENNARNA must be enabled.")
+if(NOT THERMORNA_VIENNARNA)
+    message(FATAL_ERROR "THERMORNA_VIENNARNA must be enabled.")
 endif()
 
 message(STATUS "ThermoRNA components:")
-message(STATUS "  Knotergy:  ${THERMORNA_KNOTERGY}")
+# message(STATUS "  Knotergy:  ${THERMORNA_KNOTERGY}")
 message(STATUS "  ViennaRNA: ${THERMORNA_VIENNARNA}")
 
 # ------------------------- Configuration -------------------------
@@ -49,28 +49,28 @@ message(STATUS "  Warnings:   ${THERMORNA_WARNINGS}")
 include(FetchContent)
 
 # nlohmann/json is only needed by the Knotergy subset.
-if(THERMORNA_KNOTERGY)
-    message(STATUS "Fetching external dependencies... this may take a while on the first run")
+# if(THERMORNA_KNOTERGY)
+#     message(STATUS "Fetching external dependencies... this may take a while on the first run")
 
-    set(JSON_Install OFF CACHE BOOL "" FORCE)
+#     set(JSON_Install OFF CACHE BOOL "" FORCE)
 
-    FetchContent_Declare(nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.12.0
-    )
-    FetchContent_MakeAvailable(nlohmann_json)
-endif()
+#     FetchContent_Declare(nlohmann_json
+#         GIT_REPOSITORY https://github.com/nlohmann/json.git
+#         GIT_TAG v3.12.0
+#     )
+#     FetchContent_MakeAvailable(nlohmann_json)
+# endif()
 
 # ------------------------- Source Files -------------------------
 
 set(ThermoRNASources)
 
-if(THERMORNA_KNOTERGY)
-    file(GLOB_RECURSE ThermoRNAKnotergySources CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/Knotergy/*.cpp"
-    )
-    list(APPEND ThermoRNASources ${ThermoRNAKnotergySources})
-endif()
+# if(THERMORNA_KNOTERGY)
+#     file(GLOB_RECURSE ThermoRNAKnotergySources CONFIGURE_DEPENDS
+#         "${CMAKE_CURRENT_SOURCE_DIR}/src/Knotergy/*.cpp"
+#     )
+#     list(APPEND ThermoRNASources ${ThermoRNAKnotergySources})
+# endif()
 
 if(THERMORNA_VIENNARNA)
     file(GLOB_RECURSE ThermoRNAViennaRNASources CONFIGURE_DEPENDS
@@ -90,10 +90,10 @@ target_compile_definitions(ThermoRNALib PRIVATE
     THERMORNA_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-if(THERMORNA_KNOTERGY)
-    target_compile_definitions(ThermoRNALib PUBLIC THERMORNA_KNOTERGY=1)
-    target_link_libraries(ThermoRNALib PUBLIC nlohmann_json::nlohmann_json)
-endif()
+# if(THERMORNA_KNOTERGY)
+#     target_compile_definitions(ThermoRNALib PUBLIC THERMORNA_KNOTERGY=1)
+#     target_link_libraries(ThermoRNALib PUBLIC nlohmann_json::nlohmann_json)
+# endif()
 
 if(THERMORNA_VIENNARNA)
     target_compile_definitions(ThermoRNALib PUBLIC THERMORNA_VIENNARNA=1)

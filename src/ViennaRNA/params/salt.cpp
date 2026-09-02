@@ -37,9 +37,9 @@ PRIVATE INLINE double bjerrum_length(double T) { return 167100.052 / (T * epsilo
 
 PRIVATE INLINE double ionic_strength(double rho) { return rho; }
 
-PRIVATE INLINE double kappa_inv(double rho, double T) {
-    return 8.1284 / (sqrt(bjerrum_length(T) * ionic_strength(rho)));
-}
+// PRIVATE INLINE double kappa_inv(double rho, double T) {
+//     return 8.1284 / (sqrt(bjerrum_length(T) * ionic_strength(rho)));
+// }
 
 PRIVATE INLINE double kappa(double rho, double T) {
     return sqrt(bjerrum_length(T) * ionic_strength(rho)) / 8.1284;

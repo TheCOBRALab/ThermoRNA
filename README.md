@@ -5,7 +5,6 @@ This repository is REQUIRED for Knotergy to run. Setting it to private will prev
 ## What is ThermoRNA
 It includes:
 - Lightweight package of ViennaRNA param loader + low level eval functions
-- Lightweight package of Knotergy pseudoknot param loader
 - (TODO) Lightweight package of RNAstructure's param loader + low level eval functions
 
 ## How to use
@@ -15,12 +14,11 @@ In the example below, only ViennaRNA files are included
 ```cmake
 include(FetchContent)
 #------------------ ThermoRNA -----------------
-set(THERMORNA_KNOTERGY OFF CACHE BOOL "" FORCE)
 set(THERMORNA_VIENNARNA ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(ThermoRNA
     GIT_REPOSITORY https://github.com/TheCOBRALab/ThermoRNA.git
-    GIT_TAG v0.1.1 # Set desired version
+    GIT_TAG v0.1.3 # Set desired version
 )
 FetchContent_MakeAvailable(ThermoRNA)
 ```

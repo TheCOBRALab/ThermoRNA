@@ -8,7 +8,8 @@ namespace thermorna::viennarna {
 /**
  *  @brief The default growth formula for array
  */
-#define VRNA_ARRAY_GROW_FORMULA(n) (1.4 * (n) + 8)
+#define VRNA_ARRAY_GROW_FORMULA(n) \
+    static_cast<size_t>(1.4 * static_cast<double>(n) + 8.0)
 #endif
 
 /**
