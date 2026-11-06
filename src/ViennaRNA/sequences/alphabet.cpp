@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <cctype>
 #include <cstring>
 #include <limits>
@@ -177,7 +178,7 @@ PUBLIC void vrna_aln_encode(const char* sequence, short** S_p, short** s5_p, sho
     if (l > std::numeric_limits<unsigned int>::max()) {
         throw std::length_error("Sequence too long");
     }
-        
+
     (*s5_p) = (short*) vrna_alloc((l + 2) * sizeof(short));
     (*s3_p) = (short*) vrna_alloc((l + 2) * sizeof(short));
     (*as_p) = (unsigned int*) vrna_alloc((l + 2) * sizeof(unsigned int));

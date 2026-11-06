@@ -1,0 +1,3 @@
+# RNAstructure's parameter files are kept byte for byte as RNAstructure ships them, including
+# trailing spaces; don't report those as whitespace errors.
+params/RNAstructure/** -whitespace

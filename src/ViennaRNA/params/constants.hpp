@@ -1,7 +1,8 @@
 #pragma once
 
-#include <algorithm> 
 #include <limits.h>
+
+#include <algorithm>
 
 namespace thermorna::viennarna {
 

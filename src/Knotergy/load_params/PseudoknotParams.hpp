@@ -14,7 +14,7 @@ namespace thermorna::knotergy {
 
 enum class RoundMethod {
     None = 0,            ///< No rounding
-    Bankers = 1,         ///< Banker's rounding (default)
+    RoundToEven = 1,     ///< Banker's rounding (default)
     RoundToNearest = 2,  ///< Round to nearest integer
     RoundDown = 3,       ///< Round down (floor)
     RoundUp = 4,         ///< Round up (ceil)
@@ -24,7 +24,7 @@ enum class RoundMethod {
 [[nodiscard]] constexpr std::string_view to_string(RoundMethod method) noexcept {
     switch (method) {
         case RoundMethod::None:           return "None";
-        case RoundMethod::Bankers:        return "Bankers";
+        case RoundMethod::RoundToEven:    return "RoundToEven";
         case RoundMethod::RoundToNearest: return "RoundToNearest";
         case RoundMethod::RoundDown:      return "RoundDown";
         case RoundMethod::RoundUp:        return "RoundUp";
@@ -50,7 +50,7 @@ struct pk_param {
      * Hard coded values based on the original HotKnotsV2 implementation
      */
     pk_param()
-        : name("DirksPierce09 (Hard-coded default)"),
+        : name("Dirks-Pierce09 (Hard-coded default)"),
           pk_in_ext(-138),
           pk_in_mloop(1007),
           pk_in_pk(1500),

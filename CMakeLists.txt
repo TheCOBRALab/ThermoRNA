@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(ThermoRNA
-    VERSION 0.1.3
+    VERSION 0.2.0
     LANGUAGES CXX
     DESCRIPTION "ThermoRNA: A C++ library for processing thermodynamic data of RNA structures and their energy calculations."
 )
@@ -17,6 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # option(THERMORNA_KNOTERGY "Build the Knotergy components" ON)
 option(THERMORNA_VIENNARNA "Build the ViennaRNA components" ON)
+option(THERMORNA_RNASTRUCTURE "Build the RNAstructure parameter loader (efn2 data tables)" OFF)
 
 if(NOT THERMORNA_VIENNARNA)
     message(FATAL_ERROR "THERMORNA_VIENNARNA must be enabled.")
@@ -25,6 +26,7 @@ endif()
 message(STATUS "ThermoRNA components:")
 # message(STATUS "  Knotergy:  ${THERMORNA_KNOTERGY}")
 message(STATUS "  ViennaRNA: ${THERMORNA_VIENNARNA}")
+message(STATUS "  RNAstructure: ${THERMORNA_RNASTRUCTURE}")
 
 # ------------------------- Configuration -------------------------
 
@@ -61,6 +63,18 @@ include(FetchContent)
 #     FetchContent_MakeAvailable(nlohmann_json)
 # endif()
 
+# uni-algo (header-only) is needed by the RNAstructure loader to read multi-byte symbols such as
+# "Ψ". A parent project that already provides the target (Knotergy does) is reused as is.
+if(THERMORNA_RNASTRUCTURE AND NOT TARGET uni-algo::uni-algo)
+    set(UNI_ALGO_HEADER_ONLY ON CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(uni_algo
+        GIT_REPOSITORY https://github.com/uni-algo/uni-algo.git
+        GIT_TAG        v1.2.0
+    )
+    FetchContent_MakeAvailable(uni_algo)
+endif()
+
 # ------------------------- Source Files -------------------------
 
 set(ThermoRNASources)
@@ -77,6 +91,17 @@ if(THERMORNA_VIENNARNA)
         "${CMAKE_CURRENT_SOURCE_DIR}/src/ViennaRNA/*.cpp"
     )
     list(APPEND ThermoRNASources ${ThermoRNAViennaRNASources})
+endif()
+
+if(THERMORNA_RNASTRUCTURE)
+    file(GLOB_RECURSE ThermoRNARNAstructureSources CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/RNAstructure/*.cpp"
+    )
+    # No fused multiply-add, so that rounding of parameter values and temperature rescaling is
+    # the same on every platform (RNAstructure on x86-64 does not fuse them either).
+    set_source_files_properties(${ThermoRNARNAstructureSources} PROPERTIES
+        COMPILE_OPTIONS "-ffp-contract=off")
+    list(APPEND ThermoRNASources ${ThermoRNARNAstructureSources})
 endif()
 
 # ------------------------- ThermoRNA Library -------------------------
@@ -97,6 +122,12 @@ target_compile_definitions(ThermoRNALib PRIVATE
 
 if(THERMORNA_VIENNARNA)
     target_compile_definitions(ThermoRNALib PUBLIC THERMORNA_VIENNARNA=1)
+endif()
+
+if(THERMORNA_RNASTRUCTURE)
+    target_compile_definitions(ThermoRNALib PUBLIC THERMORNA_RNASTRUCTURE=1)
+    # Only src/RNAstructure/utils/graphemes.cpp includes uni-algo.
+    target_link_libraries(ThermoRNALib PRIVATE uni-algo::uni-algo)
 endif()
 
 # ------------------------- Compiler Flags -------------------------
@@ -143,6 +174,68 @@ else()
             -Wextra
             -Wpedantic
         )
+    endif()
+endif()
+
+# ------------------------- Tests -------------------------
+
+# Built by default only when ThermoRNA is the top-level project. They use the parameter sets
+# shipped in params/RNAstructure, so they need no setup.
+if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    set(THERMORNA_BUILD_TESTS_DEFAULT ON)
+else()
+    set(THERMORNA_BUILD_TESTS_DEFAULT OFF)
+endif()
+option(THERMORNA_BUILD_TESTS "Build ThermoRNA's unit tests" ${THERMORNA_BUILD_TESTS_DEFAULT})
+
+if(THERMORNA_BUILD_TESTS AND THERMORNA_RNASTRUCTURE)
+    if(NOT TARGET GTest::gtest_main)
+        set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+        FetchContent_Declare(googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG        v1.15.2
+        )
+        FetchContent_MakeAvailable(googletest)
+    endif()
+
+    enable_testing()
+    add_executable(ThermoRNATests test/test_rnastructure.cpp)
+    target_link_libraries(ThermoRNATests PRIVATE ThermoRNALib GTest::gtest_main)
+    target_compile_definitions(ThermoRNATests PRIVATE
+        THERMORNA_TEST_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/RNAstructure")
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Strict")
+        target_compile_options(ThermoRNATests PRIVATE
+            -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+        target_link_options(ThermoRNATests PRIVATE -fsanitize=address,undefined -fno-sanitize-recover=all)
+    endif()
+
+    include(GoogleTest)
+    gtest_discover_tests(ThermoRNATests DISCOVERY_MODE PRE_TEST)
+
+    # Bit-for-bit comparison against RNAstructure's own loader (datatable::opendat and
+    # ScaleToTemperature). Point THERMORNA_RNASTRUCTURE_SOURCE at an RNAstructure source tree.
+    add_executable(thermorna_dump tools/rnastructure_parity/thermorna_dump.cpp)
+    target_link_libraries(thermorna_dump PRIVATE ThermoRNALib)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Strict")
+        target_link_options(thermorna_dump PRIVATE -fsanitize=address,undefined)
+    endif()
+
+    set(THERMORNA_RNASTRUCTURE_SOURCE "" CACHE PATH "RNAstructure source tree for parity tests")
+    if(THERMORNA_RNASTRUCTURE_SOURCE)
+        add_executable(rnastructure_dump
+            tools/rnastructure_parity/rnastructure_dump.cpp
+            "${THERMORNA_RNASTRUCTURE_SOURCE}/src/rna_library.cpp"
+            "${THERMORNA_RNASTRUCTURE_SOURCE}/src/common_utils.cpp")
+        target_include_directories(rnastructure_dump PRIVATE "${THERMORNA_RNASTRUCTURE_SOURCE}/src")
+        target_compile_options(rnastructure_dump PRIVATE -w -O2)
+        add_test(NAME RNAstructureParity
+            COMMAND ${CMAKE_COMMAND}
+                -DRS_DUMP=$<TARGET_FILE:rnastructure_dump>
+                -DTR_DUMP=$<TARGET_FILE:thermorna_dump>
+                -DDATA=${THERMORNA_RNASTRUCTURE_SOURCE}/data_tables
+                -DOUT=${CMAKE_CURRENT_BINARY_DIR}/parity
+                -P ${CMAKE_CURRENT_SOURCE_DIR}/tools/rnastructure_parity/compare.cmake)
     endif()
 endif()
 

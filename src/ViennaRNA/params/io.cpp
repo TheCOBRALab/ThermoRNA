@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <cstdlib>
 #include <algorithm>
+#include <cstdlib>
 
 namespace thermorna::viennarna {
 
@@ -206,9 +206,7 @@ PUBLIC int vrna_params_load_from_string(const char* string, const char* name,
     return ret;
 }
 
-PUBLIC int vrna_params_load_defaults(void) {
-    return vrna_params_load_RNA_Turner2004();
-}
+PUBLIC int vrna_params_load_defaults(void) { return vrna_params_load_RNA_Turner2004(); }
 
 PUBLIC int vrna_params_load_RNA_Turner2004(void) {
     // Turner 2004 parameters are already compiled into ThermoRNA
@@ -223,7 +221,6 @@ PUBLIC int vrna_params_load_DNA_Mathews2004(void) {
     // There is no guaranteed built-in DNA parameter set.
     return 0;
 }
-
 
 #ifndef VRNA_DISABLE_BACKWARD_COMPATIBILITY
 
@@ -1649,7 +1646,7 @@ char* vrna_read_line(FILE* fp) {
 
         if (required > size) {
             size = required + required / 5;  // 120%
-            line = static_cast<char *>(vrna_realloc(line, size));
+            line = static_cast<char*>(vrna_realloc(line, size));
         }
 
         memcpy(line + len, s, l2);

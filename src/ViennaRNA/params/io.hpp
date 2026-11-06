@@ -113,7 +113,6 @@ int vrna_params_load_defaults(void);
  */
 int vrna_params_load_RNA_Turner2004(void);
 
-
 /**
  *  @brief  Load Mathews 2004 DNA energy parameter set
  *
@@ -132,7 +131,6 @@ int vrna_params_load_RNA_Turner2004(void);
  *  @return Non-zero on success, 0 on failure
  */
 int vrna_params_load_DNA_Mathews2004(void);
-
 
 /**
  *  @brief
