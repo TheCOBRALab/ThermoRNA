@@ -770,6 +770,43 @@ TEST(Datatable, AliasesAndExplicitFallbacks) {
     EXPECT_THROW((void) rs::Datatable::load(clash), rs::ParameterError);
 }
 
+// A modified-base set as the base set: its modified base is one of the base bases, so it is
+// kept in contexts that mix it with other modifications (efn2 -a m6A, plus pseudouridine).
+TEST(Datatable, ModifiedBaseSetAsBase) {
+    rs::LoadOptions options;
+    options.data_directory = set_dir("m6A");
+    options.modifications = {{set_dir("PSU")}};
+    const rs::Datatable d = rs::Datatable::load(options);
+    const rs::AlphabetTables m6a = rs::AlphabetTables::load(set_dir("m6A"));
+    const rs::Code A = d.code("A"), C = d.code("C"), G = d.code("G"), U = d.code("U");
+    const rs::Code M = d.code("6"), P = d.code("P");
+    EXPECT_FALSE(d.is_modified(M));
+    EXPECT_TRUE(d.is_modified(P));
+    EXPECT_EQ(d.fallback(P), U);  // pairing compared on the bases both sets have
+    EXPECT_EQ(d.stack(A, U, G, U), m6a.stack(A, U, G, U));  // m6A's own canonical values
+    EXPECT_EQ(d.stack(M, P, G, C), m6a.stack(M, U, G, C));  // Ψ -> U, m6A kept
+    const rs::Code mixed[] = {M, P, G, C};
+    EXPECT_EQ(d.source(mixed, 4).kind, rs::LookupSource::Kind::Fallback);
+
+    // m1Ψ on top of m6A is a base of its own, written '1'; 'M' keeps the base set's meaning
+    // (RNAstructure writes both m6A and m1Ψ as M).
+    options.modifications = {{set_dir("1")}};
+    const rs::Datatable m1psi = rs::Datatable::load(options);
+    EXPECT_EQ(m1psi.size(), 8u);
+    EXPECT_EQ(m1psi.code("M"), m1psi.code("6"));
+    EXPECT_EQ(m1psi.origin(m1psi.code("1")), "m1Ψ");
+    EXPECT_EQ(m1psi.fallback(m1psi.code("1")), m1psi.code("U"));
+
+    // m6A on top of m1Ψ_full, where every U (also written 1 or M) is m1Ψ.
+    rs::LoadOptions full;
+    full.data_directory = set_dir("Full1");
+    full.modifications = {{set_dir("m6A")}};
+    const rs::Datatable f = rs::Datatable::load(full);
+    EXPECT_EQ(f.code("M"), f.code("U"));
+    EXPECT_EQ(f.origin(f.code("6")), "m6A");
+    EXPECT_EQ(f.fallback(f.code("6")), f.code("A"));
+}
+
 TEST(Datatable, TemperatureAppliesToEveryAlphabet) {
     EXPECT_THROW((void) load({"m6A"}, 300.0), rs::ParameterError);
     rs::LoadOptions options;

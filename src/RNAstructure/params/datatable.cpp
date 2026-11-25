@@ -145,11 +145,17 @@ void Datatable::add_modification(AlphabetTables tables, const Modification& spec
         const Code lc = static_cast<Code>(l);
         const std::vector<std::string>& symbols = local.symbols(lc);
 
-        // A base of the base alphabet when they share a symbol (X = N, A = a, U = T, ...).
+        // A base of the base alphabet when both are written the same way: the same primary
+        // symbol, or each primary symbol is a symbol of the other (U = T). Other shared symbols
+        // don't count: RNAstructure writes both m6A and m1Ψ as M.
         std::vector<Code> matches;
-        for (const std::string& symbol : symbols) {
-            const Code c = base_alphabet.code(symbol);
-            if (c != kInvalidCode && !contains(matches, c)) matches.push_back(c);
+        for (std::size_t c = 0; c < base_count; ++c) {
+            const Code code = static_cast<Code>(c);
+            const std::string& primary = base_alphabet.primary_symbol(code);
+            if (primary == symbols.front() || (local.has_symbol(lc, primary) &&
+                                               base_alphabet.has_symbol(code, symbols.front()))) {
+                matches.push_back(code);
+            }
         }
         if (matches.size() > 1) {
             throw ParameterError("Base '" + symbols.front() + "' of alphabet '" + name +
@@ -251,7 +257,13 @@ void Datatable::add_modification(AlphabetTables tables, const Modification& spec
     }
 
     // Inferred fallbacks: the interacting base of the base alphabet that pairs with exactly the
-    // same bases (m6A pairs with U like A; pseudouridine pairs with A and G like U).
+    // same bases (m6A pairs with U like A; pseudouridine pairs with A and G like U). Pairing is
+    // compared on the bases both alphabets have, so a base alphabet with modified bases of its
+    // own works too (with base "m6A", U also pairs with m6A, which the PSU alphabet lacks).
+    std::vector<bool> shared(base_count, false);
+    for (std::size_t l = 0; l < local.size(); ++l) {
+        if (static_cast<std::size_t>(merged[l]) < base_count) shared[merged[l]] = true;
+    }
     for (std::size_t l = 0; l < local.size(); ++l) {
         if (!is_new[l] || has_fallback[l]) continue;
         const Code lc = static_cast<Code>(l);
@@ -291,8 +303,12 @@ void Datatable::add_modification(AlphabetTables tables, const Modification& spec
         if (!partners.empty()) {
             for (std::size_t c = 0; c < base_count; ++c) {
                 const Code code = static_cast<Code>(c);
-                if (!base_alphabet.can_interact(code)) continue;
-                if (base_alphabet.partners(code) == partners) candidates.push_back(code);
+                if (!base_alphabet.can_interact(code) || !shared[c]) continue;
+                std::vector<Code> known;
+                for (const Code partner : base_alphabet.partners(code)) {
+                    if (shared[partner]) known.push_back(partner);
+                }
+                if (known == partners) candidates.push_back(code);
             }
         }
         if (candidates.size() != 1) {
@@ -302,8 +318,8 @@ void Datatable::add_modification(AlphabetTables tables, const Modification& spec
                 (candidates.empty() ? std::string("no base of '") + base_alphabet.name() +
                                           "' has the same pairing partners"
                                     : std::string("several bases have the same pairing partners")) +
-                "). Set Modification::fallbacks, e.g. {\"" + symbols_[target].front() +
-                "\", \"A\"}.");
+                "). Set it with Modification::fallbacks: {{\"" + symbols_[target].front() +
+                "\", <unmodified base>}}.");
         }
         fallback_[target] = candidates.front();
     }
@@ -332,6 +348,7 @@ void Datatable::build_symbol_lookup(const std::vector<Modification>& specs) {
     // and, like basetonum(), the first base listing a symbol owns it.
     std::map<std::string, Code> registry;
     std::map<std::string, std::vector<Code>> claims;
+    std::vector<std::pair<std::string, Code>> shadowed;  // added base's symbol a base owns
     for (std::size_t c = 0; c < symbols_.size(); ++c) {
         const Code code = static_cast<Code>(c);
         for (const std::string& symbol : symbols_[c]) {
@@ -339,10 +356,12 @@ void Datatable::build_symbol_lookup(const std::vector<Modification>& specs) {
             if (c < base_count) continue;
             std::vector<Code>& claimants = claims[symbol];
             if (!contains(claimants, code)) claimants.push_back(code);
-            const bool claimed_by_other_added_base =
-                !inserted && it->second != code && it->second != kAmbiguousCode &&
-                static_cast<std::size_t>(it->second) >= base_count;
-            if (claimed_by_other_added_base) it->second = kAmbiguousCode;
+            if (inserted || it->second == code || it->second == kAmbiguousCode) continue;
+            if (static_cast<std::size_t>(it->second) >= base_count) {
+                it->second = kAmbiguousCode;  // two added bases
+            } else {
+                shadowed.emplace_back(symbol, code);  // the base alphabet's meaning wins
+            }
         }
     }
 
@@ -380,6 +399,27 @@ void Datatable::build_symbol_lookup(const std::vector<Modification>& specs) {
             registry[alias] = code;
             std::vector<std::string>& known = symbols_[code];
             if (std::find(known.begin(), known.end(), alias) == known.end()) known.push_back(alias);
+        }
+    }
+
+    // An added base's symbol that a base of the base alphabet uses keeps the base alphabet's
+    // meaning; say so, and flag added bases left without any symbol of their own.
+    for (const auto& [symbol, code] : shadowed) {
+        const Code owner = registry.at(symbol);
+        warnings_.push_back("Symbol '" + symbol + "' of '" + symbols_[code].front() +
+                            "' (alphabet '" + owner_[code] + "') already means '" +
+                            symbols_[owner].front() + "' of alphabet '" + owner_[owner] +
+                            "', which keeps it.");
+    }
+    for (std::size_t c = base_count; c < symbols_.size(); ++c) {
+        bool writable = false;
+        for (const std::string& symbol : symbols_[c]) {
+            writable = writable || registry.at(symbol) == static_cast<Code>(c);
+        }
+        if (!writable) {
+            warnings_.push_back("Base '" + symbols_[c].front() + "' of alphabet '" + owner_[c] +
+                                "' cannot be written in sequences: its symbols mean other bases. "
+                                "Give it one with Modification::aliases.");
         }
     }
 

@@ -13,9 +13,10 @@
  *   1. only base nucleotides               -> the base alphabet's tables
  *   2. nucleotides one modification covers -> that modification's tables (the last one loaded
  *      wins when several cover the context)
- *   3. modified bases from different files -> each modified base is replaced by its unmodified
+ *   3. modified bases from different files -> each added base is replaced by its unmodified
  *      fallback and the base tables are used, the rule Knotergy applies to modified bases that
- *      have no parameters for a context.
+ *      have no parameters for a context. Bases of the base alphabet stay, so with "m6A" as the
+ *      base an m6A next to an added pseudouridine keeps m6A's parameters.
  * A Datatable with no modifications is identical to efn2's datatable; one whose base alphabet
  * is "m6A" is identical to `efn2 --alphabet m6A`.
  *
@@ -52,8 +53,9 @@ struct Modification {
     std::string alphabet{};
 
     /// Unmodified base each new base falls back to, as {symbol, base symbol}, e.g. {"M", "A"}.
-    /// When omitted it is inferred from the Pairing section (the canonical base with the same
-    /// pairing partners: m6A -> A, pseudouridine -> U, m1Ψ -> U).
+    /// When omitted it is inferred from the Pairing section: the base of the base alphabet with
+    /// the same pairing partners among the bases both alphabets have (m6A -> A,
+    /// pseudouridine -> U, m1Ψ -> U).
     std::vector<std::pair<std::string, std::string>> fallbacks{};
 
     /// Extra symbols, as {new symbol, existing symbol of this alphabet}, e.g. {"Ψ", "P"}.

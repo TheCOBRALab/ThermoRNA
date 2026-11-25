@@ -3,12 +3,15 @@
 This repository is REQUIRED for Knotergy to run. Setting it to private will prevent people from compiling it.
 
 ## What is ThermoRNA
+
 It includes:
+
 - Lightweight package of ViennaRNA param loader + low level eval functions
 - Lightweight package of RNAstructure's param loader: the tables efn2 uses, with any number of modified bases at once
 - (TODO) RNAstructure low level eval functions
 
 ## How to use
+
 In your cmake file you include fetch content, and can switch flags on or off for which subpackages you want
 In the example below, only ViennaRNA files are included
 
@@ -20,7 +23,7 @@ set(THERMORNA_RNASTRUCTURE ON CACHE BOOL "" FORCE)  # optional, see below
 
 FetchContent_Declare(ThermoRNA
     GIT_REPOSITORY https://github.com/TheCOBRALab/ThermoRNA.git
-    GIT_TAG v0.2.0 # Set desired version
+    GIT_TAG v0.2.1 # Set desired version
 )
 FetchContent_MakeAvailable(ThermoRNA)
 ```
@@ -99,19 +102,19 @@ entries), and every accessor takes the same arguments as the corresponding array
 RNAstructure's `datatable`, so efn2's energy functions port line by line. Lookups are `const`
 and thread-safe.
 
-| efn2 (`datatable* data`, `structure* ct`)  | `rs::Datatable data`, `s = data.encode(seq)` |
-| ------------------------------------------ | -------------------------------------------- |
-| `ct->numseq[i]` (1-based)                  | `s[i]` (0-based)                             |
+| efn2 (`datatable* data`, `structure* ct`)                                                                                             | `rs::Datatable data`, `s = data.encode(seq)`     |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `ct->numseq[i]` (1-based)                                                                                                             | `s[i]` (0-based)                                 |
 | `data->stack[a][b][c][d]`, `tstkh`, `tstki`, `tstki23`, `tstki1n`, `tstack`, `tstkm`, `coax`, `tstackcoax`, `coaxstack`, `helix_ends` | `data.stack(a, b, c, d)`, `data.tstkh(...)`, ... |
-| `data->dangle[a][b][c][d]`                 | `data.dangle(a, b, c, d)`                    |
-| `data->iloop11[a]..[f]`, `iloop21`, `iloop22` | `data.iloop11(a, ..., f)`, ...            |
-| `data->hairpin[n]`, `bulge`, `inter`       | `data.hairpin()[n]`, ...                     |
-| `data->eparam[k]`, `poppen`, `maxpen`, `efn2a/b/c`, `prelog`, `gubonus`, ... | `data.misc().eparam[k]`, ... |
-| `data->RT`                                 | `data.RT()`                                  |
-| tetraloop search over `data->tloop`        | `data.tloop(&s[i])` (`triloop`, `hexaloop`)  |
-| `data->pairing[a][b]`                      | `data.can_pair(a, b)`                        |
-| `ct->IsNuc(i, 'G')`                        | `data.has_symbol(s[i], "G")`                 |
-| `ct->numseq[i] == 2` (C)                   | `s[i] == data.code("C")`                     |
+| `data->dangle[a][b][c][d]`                                                                                                            | `data.dangle(a, b, c, d)`                        |
+| `data->iloop11[a]..[f]`, `iloop21`, `iloop22`                                                                                         | `data.iloop11(a, ..., f)`, ...                   |
+| `data->hairpin[n]`, `bulge`, `inter`                                                                                                  | `data.hairpin()[n]`, ...                         |
+| `data->eparam[k]`, `poppen`, `maxpen`, `efn2a/b/c`, `prelog`, `gubonus`, ...                                                          | `data.misc().eparam[k]`, ...                     |
+| `data->RT`                                                                                                                            | `data.RT()`                                      |
+| tetraloop search over `data->tloop`                                                                                                   | `data.tloop(&s[i])` (`triloop`, `hexaloop`)      |
+| `data->pairing[a][b]`                                                                                                                 | `data.can_pair(a, b)`                            |
+| `ct->IsNuc(i, 'G')`                                                                                                                   | `data.has_symbol(s[i], "G")`                     |
+| `ct->numseq[i] == 2` (C)                                                                                                              | `s[i] == data.code("C")`                         |
 
 ### What is loaded
 
@@ -144,27 +147,31 @@ any number of modification alphabets into one code space on top of a base alphab
 is answered from the alphabet that covers all of its nucleotides:
 
 1. only base nucleotides: the base alphabet (so canonical contexts are exactly `rna`, even
-   though `m6A.stack.dg` lists other values for some canonical GU stacks);
+   though the m6A, Ψ and m1Ψ files list other values for some GU stacks and helix ends);
 2. nucleotides a modification covers: that modification's tables, exactly as `efn2 -a <it>`
    would read them; if several cover the context, the last one listed wins;
 3. modified bases from different alphabets in one context: each is replaced by its unmodified
    fallback and the base tables are used, the rule Knotergy already applies to modified bases
    without parameters for a context.
 
-With no modifications a `Datatable` is efn2's datatable; with the m6A set as the base it is
-`efn2 -a m6A`.
+With no modifications a `Datatable` is efn2's datatable. A modified-base set can be the base
+too: with the m6A set as the base it is `efn2 -a m6A`, m6A is then one of the base bases (every
+context, unmodified ones included, comes from m6A's files), and contexts that mix m6A with an
+added modification keep m6A and only replace the added one.
 
 - **Fallbacks** are inferred from the Pairing sections (m6A → A, pseudouridine → U, m1Ψ → U)
   or set explicitly: `{"params/RNAstructure/m6A", "", {{"6", "A"}}}`.
-- **Symbols** come from the specification files. A symbol that two modifications use for
-  different bases is rejected in sequences with an explanation (RNAstructure uses `M` for both
-  m6A and m1Ψ, so write `6` or `1`). Knotergy's codes `6`, `P` and `1` are symbols of the m6A,
-  PSU and 1 alphabets.
+- **Symbols** come from the specification files. Bases are the same when their primary
+  symbols are (or each is a symbol of the other, like U and T); other shared symbols don't
+  count, since RNAstructure writes both m6A and m1Ψ as `M`. A symbol that two added sets use
+  for different bases is rejected in sequences with an explanation (write `6` or `1`); one the
+  base set already uses keeps the base set's meaning. Knotergy's codes `6`, `P` and `1` are
+  symbols of the m6A, PSU and 1 alphabets.
 - **Graphemes**: symbols are grapheme clusters everywhere (specification, table headers,
   sequences), so alphabets can use `Ψ`, and `Modification::aliases` adds symbols
-  (`{"params/RNAstructure/Ψ", "", {}, {{"Ψ", "P"}}}`). uni-algo is only called for the spans of text that contain
-  non-ASCII bytes; ASCII is handled byte by byte, and the result is identical to segmenting
-  everything with uni-algo.
+  (`{"params/RNAstructure/Ψ", "", {}, {{"Ψ", "P"}}}`). uni-algo is only called for the spans of
+  text that contain non-ASCII bytes; ASCII is handled byte by byte, and the result is identical
+  to segmenting everything with uni-algo.
 
 Memory is small because internal-loop tables store one dense block per closing-pair combination
 that the files contain: `rna` takes about 0.25 MB and each modification alphabet 0.4-0.8 MB
