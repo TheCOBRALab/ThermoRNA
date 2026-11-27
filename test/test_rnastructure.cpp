@@ -54,7 +54,7 @@ void remove_tree(const std::string& path) {
             const std::string name = e->d_name;
             if (name == "." || name == "..") continue;
             const std::string child = path + "/" + name;
-            struct stat info {};
+            struct stat info{};
             if (lstat(child.c_str(), &info) == 0 && S_ISDIR(info.st_mode)) {
                 remove_tree(child);
             } else {

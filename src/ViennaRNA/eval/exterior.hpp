@@ -27,6 +27,21 @@ namespace thermorna::viennarna {
  *  @param  p     The pre-computed energy parameters
  *  @return       The energy contribution of the introduced exterior-loop stem
  */
-int vrna_E_exterior_stem(unsigned int type, int n5d, int n3d, vrna_param_t* p);
+// Defined here so that recursions can inline it into their innermost loops
+// which makes the inlined code faster.
+inline int vrna_E_exterior_stem(unsigned int type, int n5d, int n3d, vrna_param_t* p) {
+    int energy = 0;
+
+    if (n5d >= 0 && n3d >= 0)
+        energy += p->mismatchExt[type][n5d][n3d];
+    else if (n5d >= 0)
+        energy += p->dangle5[type][n5d];
+    else if (n3d >= 0)
+        energy += p->dangle3[type][n3d];
+
+    if (type > 2) energy += p->TerminalAU;
+
+    return energy;
+}
 
 }  // namespace thermorna::viennarna

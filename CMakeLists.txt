@@ -199,7 +199,8 @@ if(THERMORNA_BUILD_TESTS AND THERMORNA_RNASTRUCTURE)
     endif()
 
     enable_testing()
-    add_executable(ThermoRNATests test/test_rnastructure.cpp test/test_rnastructure_eval.cpp)
+    add_executable(ThermoRNATests test/test_rnastructure.cpp test/test_rnastructure_eval.cpp
+                                  test/test_viennarna_eval.cpp)
     target_link_libraries(ThermoRNATests PRIVATE ThermoRNALib GTest::gtest_main)
     target_compile_definitions(ThermoRNATests PRIVATE
         THERMORNA_TEST_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/RNAstructure")

@@ -148,15 +148,15 @@ int multiloop = rs::multibranch_energy(s[1], s[26], s[0], s[27],
 int exterior = rs::exterior_energy({Element::helix(s[0], s[27], s[1], s[26])}, data);
 ```
 
-| efn2 (`src/structure.cpp`)      | here                                                                                                                         |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `erg1`: stack                   | `data.stack(i, j, p, q)`                                                                                                     |
+| efn2 (`src/structure.cpp`)      | here                                                                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `erg1`: stack                   | `data.stack(i, j, p, q)`                                                                                                    |
 | `erg2`: internal loop and bulge | `rs::internal_loop_energy(n1, n2, i, j, p, q, si1, sj1, sp1, sq1, beyond_i, beyond_j, beyond_p, beyond_q, bulge_run, data)` |
-| `erg3`: hairpin                 | `rs::hairpin_energy(size, loop, beyond_i, beyond_i2, beyond_j, data)`                                                        |
-| `erg4`: dangling end            | `data.dangle(a, b, x, 1)` on the 3' side, `data.dangle(a, b, x, 2)` on the 5' side                                           |
-| `penalty`: helix end            | `data.helix_ends(a, b, after_a, before_b)`                                                                                   |
-| `ergexterior`                   | `rs::exterior_energy(loop, data, coaxial)`                                                                                   |
-| `ergmulti`                      | `rs::multibranch_energy(i, j, beyond_i, beyond_j, loop, data, rule, coaxial)`                                                |
+| `erg3`: hairpin                 | `rs::hairpin_energy(size, loop, beyond_i, beyond_i2, beyond_j, data)`                                                       |
+| `erg4`: dangling end            | `data.dangle(a, b, x, 1)` on the 3' side, `data.dangle(a, b, x, 2)` on the 5' side                                          |
+| `penalty`: helix end            | `data.helix_ends(a, b, after_a, before_b)`                                                                                  |
+| `ergexterior`                   | `rs::exterior_energy(loop, data, coaxial)`                                                                                  |
+| `ergmulti`                      | `rs::multibranch_energy(i, j, beyond_i, beyond_j, loop, data, rule, coaxial)`                                               |
 
 - Nucleotides are passed as codes (`rs::Code`, from `data.code("A")` or `data.encode(...)`).
   `size`, `n1`, `n2` and `bulge_run` are numbers of nucleotides. The first ten arguments of
@@ -195,14 +195,14 @@ energy is the lowest sum over the choices. `exterior_energy` and `multibranch_en
 choice for a whole loop. A folding algorithm makes it in its recursion, with the energy of one
 stem and one choice at a time:
 
-| `rs::`                                                                               | what                                                              |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| `exterior_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)`              | helix end + dangle or mismatch, like `vrna_E_exterior_stem`       |
-| `multibranch_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)`           | the same + the penalty per helix, like `vrna_E_multibranch_stem`  |
-| `coaxial_stack_energy(p1, q1, p2, q2, data)`                                         | two helices next to each other                                    |
-| `coaxial_stack_mismatch5_energy(p1, q1, p2, q2, before, between, data)`              | two helices one nucleotide apart, mismatch before the first       |
-| `coaxial_stack_mismatch3_energy(p1, q1, p2, q2, between, after, data)`               | the same, mismatch after the second                               |
-| `data.misc().efn2a`, `data.misc().efn2b`                                             | multibranch loop: offset, and penalty per unpaired nucleotide     |
+| `rs::`                                                                     | what                                                             |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `exterior_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)`    | helix end + dangle or mismatch, like `vrna_E_exterior_stem`      |
+| `multibranch_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)` | the same + the penalty per helix, like `vrna_E_multibranch_stem` |
+| `coaxial_stack_energy(p1, q1, p2, q2, data)`                               | two helices next to each other                                   |
+| `coaxial_stack_mismatch5_energy(p1, q1, p2, q2, before, between, data)`    | two helices one nucleotide apart, mismatch before the first      |
+| `coaxial_stack_mismatch3_energy(p1, q1, p2, q2, between, after, data)`     | the same, mismatch after the second                              |
+| `data.misc().efn2a`, `data.misc().efn2b`                                   | multibranch loop: offset, and penalty per unpaired nucleotide    |
 
 - A helix is given as the loop sees it, going through the loop 5' to 3': the loop reaches it at
   `p` and leaves it at `q`. `after_p` and `before_q` are on the side of the helix (its next

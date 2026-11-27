@@ -84,7 +84,7 @@ std::string ParameterSetLocation::file(const std::string& table,
 }
 
 bool is_directory(const std::string& path) {
-    struct stat info {};
+    struct stat info{};
     return !path.empty() && ::stat(path.c_str(), &info) == 0 && S_ISDIR(info.st_mode);
 }
 

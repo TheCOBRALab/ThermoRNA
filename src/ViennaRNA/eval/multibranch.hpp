@@ -34,5 +34,26 @@ namespace thermorna::viennarna {
  *  @param  P     The pre-computed energy parameters
  *  @return       The energy contribution of the introduced mutlibranch loop stem
  */
-int vrna_E_multibranch_stem(unsigned int type, int si1, int sj1, vrna_param_t* P);
+// Defined here so that recursions can inline it into their innermost loops
+// which makes the inlined code faster.
+inline int vrna_E_multibranch_stem(unsigned int type, int si1, int sj1, vrna_param_t* P) {
+    int t = (int) type, energy = INF;
+
+    if (P) {
+        energy = 0;
+
+        if (si1 >= 0 && sj1 >= 0)
+            energy += P->mismatchM[t][si1][sj1];
+        else if (si1 >= 0)
+            energy += P->dangle5[t][si1];
+        else if (sj1 >= 0)
+            energy += P->dangle3[t][sj1];
+
+        if (t > 2) energy += P->TerminalAU;
+
+        energy += P->MLintern[t];
+    }
+
+    return energy;
+}
 }  // namespace thermorna::viennarna

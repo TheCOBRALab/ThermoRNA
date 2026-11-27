@@ -27,30 +27,22 @@ int logML = VRNA_MODEL_DEFAULT_LOG_ML;
 int james_rule = 1; /* interior loops of size 2 get energy 0.8Kcal and
                      * no mismatches (no longer used) */
 
-#define BP_REV_DEFAULT \
-    { 0, 2, 1, 4, 3, 6, 5, 7 }
+#define BP_REV_DEFAULT {0, 2, 1, 4, 3, 6, 5, 7}
 
-#define BP_ALIAS_DEFAULT \
-    { 0, 1, 2, 3, 4, 3, 2, 0 }
+#define BP_ALIAS_DEFAULT {0, 1, 2, 3, 4, 3, 2, 0}
 
-#define BP_ENCODING_DEFAULT                                                               \
-    /*  _  A  C  G  U  X  K  I */                                                         \
-    {                                                                                     \
-        {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 5, 0, 0, 5}, {0, 0, 0, 1, 0, 0, 0, 0},     \
-            {0, 0, 2, 0, 3, 0, 0, 0}, {0, 6, 0, 4, 0, 0, 0, 6}, {0, 0, 0, 0, 0, 0, 2, 0}, \
-            {0, 0, 0, 0, 0, 1, 0, 0}, {                                                   \
-            0, 6, 0, 0, 5, 0, 0, 0                                                        \
-        }                                                                                 \
-    }
+#define BP_ENCODING_DEFAULT                                                        \
+    /*  _  A  C  G  U  X  K  I */                                                  \
+    {{0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 5, 0, 0, 5}, {0, 0, 0, 1, 0, 0, 0, 0}, \
+     {0, 0, 2, 0, 3, 0, 0, 0}, {0, 6, 0, 4, 0, 0, 0, 6}, {0, 0, 0, 0, 0, 0, 2, 0}, \
+     {0, 0, 0, 0, 0, 1, 0, 0}, {0, 6, 0, 0, 5, 0, 0, 0}}
 
-#define DM_DEFAULT                                                          \
-    {                                                                       \
-        {0, 0, 0, 0, 0, 0, 0}, /* hamming distance between pairs */         \
-            {0, 0, 2, 2, 1, 2, 2} /* CG */, {0, 2, 0, 1, 2, 2, 2} /* GC */, \
-            {0, 2, 1, 0, 2, 1, 2} /* GU */, {0, 1, 2, 2, 0, 2, 1} /* UG */, \
-            {0, 2, 2, 1, 2, 0, 2} /* AU */, {                               \
-            0, 2, 2, 2, 1, 2, 0                                             \
-        } /* UA */                                                          \
+#define DM_DEFAULT                                                      \
+    {                                                                   \
+        {0, 0, 0, 0, 0, 0, 0}, /* hamming distance between pairs */     \
+        {0, 0, 2, 2, 1, 2, 2} /* CG */, {0, 2, 0, 1, 2, 2, 2} /* GC */, \
+        {0, 2, 1, 0, 2, 1, 2} /* GU */, {0, 1, 2, 2, 0, 2, 1} /* UG */, \
+        {0, 2, 2, 1, 2, 0, 2} /* AU */, {0, 2, 2, 2, 1, 2, 0} /* UA */  \
     }
 
 static vrna_md_t defaults = {
