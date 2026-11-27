@@ -202,6 +202,9 @@ if(THERMORNA_BUILD_TESTS AND THERMORNA_RNASTRUCTURE)
     add_executable(ThermoRNATests test/test_rnastructure.cpp test/test_rnastructure_eval.cpp
                                   test/test_viennarna_eval.cpp)
     target_link_libraries(ThermoRNATests PRIVATE ThermoRNALib GTest::gtest_main)
+    # The tests redo some of RNAstructure's arithmetic to compare with, so they follow the same
+    # rule as the library: no fused multiply-add (Clang fuses by default on Apple Silicon).
+    target_compile_options(ThermoRNATests PRIVATE -ffp-contract=off)
     target_compile_definitions(ThermoRNATests PRIVATE
         THERMORNA_TEST_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/RNAstructure")
 
