@@ -46,6 +46,10 @@ inline constexpr double kDefaultPseudoknotP2 = 0.65;
 /// Returned by symbol lookups for symbols that are not part of the alphabet.
 inline constexpr Code kInvalidCode = 0xFF;
 
+/// "No nucleotide here": what the energy functions take for a neighbor that does not exist,
+/// such as the one before the first nucleotide of a strand.
+inline constexpr Code kNoNucleotide = kInvalidCode;
+
 /// Largest number of distinct nucleotides one alphabet (or a merged Datatable) can hold.
 inline constexpr std::size_t kMaxCodes = 0xFE;
 

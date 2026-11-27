@@ -8,7 +8,7 @@ It includes:
 
 - Lightweight package of ViennaRNA param loader + low level eval functions
 - Lightweight package of RNAstructure's param loader: the tables efn2 uses, with any number of modified bases at once
-- (TODO) RNAstructure low level eval functions
+- RNAstructure low level eval functions: efn2's energy of every kind of loop and of single stems, from encoded nucleotides
 
 ## How to use
 
@@ -23,7 +23,7 @@ set(THERMORNA_RNASTRUCTURE ON CACHE BOOL "" FORCE)  # optional, see below
 
 FetchContent_Declare(ThermoRNA
     GIT_REPOSITORY https://github.com/TheCOBRALab/ThermoRNA.git
-    GIT_TAG v0.2.1 # Set desired version
+    GIT_TAG v0.2.2 # Set desired version
 )
 FetchContent_MakeAvailable(ThermoRNA)
 ```
@@ -116,6 +116,133 @@ and thread-safe.
 | `ct->IsNuc(i, 'G')`                                                                                                                   | `data.has_symbol(s[i], "G")`                     |
 | `ct->numseq[i] == 2` (C)                                                                                                              | `s[i] == data.code("C")`                         |
 
+### Energy functions (efn2)
+
+`RNAstructure/eval` has efn2's energy functions. Like ViennaRNA's low level functions
+(`vrna_E_hairpin(size, type, si1, sj1, sequence, P)`), they take the encoded nucleotides a loop
+is made of, not a sequence and positions. Where the nucleotides come from is up to the caller:
+a sequence that is encoded once, a part of one, two strands.
+
+```c++
+//                                           0         1         2
+//                                           0123456789012345678901234567
+const std::vector<rs::Code> s = data.encode("GCGGACAAAAGUCCGGACAAAAGUCCGC");
+//                                           ((((((....))))((((....))))))
+using Element = rs::LoopElement;
+
+// The stack of pairs 0-27 and 1-26 is a table entry.                  efn2 -w: -3.4
+int stack = data.stack(s[0], s[27], s[1], s[26]);
+
+// The hairpin closed by 5-10: its size, the nucleotides from 5 to 10, and those at 4, 3
+// and 11.                                                                        4.1
+int hairpin = rs::hairpin_energy(4, &s[5], s[4], s[3], s[11], data);
+
+// The multibranch loop closed by 1-26: the pair, the nucleotides at 0 and 27, and what is
+// in the loop, here two helices that start with 2-13 and 14-25.                  8.2
+int multiloop = rs::multibranch_energy(s[1], s[26], s[0], s[27],
+                                       {Element::helix(s[2], s[13], s[3], s[12]),
+                                        Element::helix(s[14], s[25], s[15], s[24])},
+                                       data);
+
+// The exterior loop: one helix, which starts with 0-27.                          0.0
+int exterior = rs::exterior_energy({Element::helix(s[0], s[27], s[1], s[26])}, data);
+```
+
+| efn2 (`src/structure.cpp`)      | here                                                                                                                         |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `erg1`: stack                   | `data.stack(i, j, p, q)`                                                                                                     |
+| `erg2`: internal loop and bulge | `rs::internal_loop_energy(n1, n2, i, j, p, q, si1, sj1, sp1, sq1, beyond_i, beyond_j, beyond_p, beyond_q, bulge_run, data)` |
+| `erg3`: hairpin                 | `rs::hairpin_energy(size, loop, beyond_i, beyond_i2, beyond_j, data)`                                                        |
+| `erg4`: dangling end            | `data.dangle(a, b, x, 1)` on the 3' side, `data.dangle(a, b, x, 2)` on the 5' side                                           |
+| `penalty`: helix end            | `data.helix_ends(a, b, after_a, before_b)`                                                                                   |
+| `ergexterior`                   | `rs::exterior_energy(loop, data, coaxial)`                                                                                   |
+| `ergmulti`                      | `rs::multibranch_energy(i, j, beyond_i, beyond_j, loop, data, rule, coaxial)`                                                |
+
+- Nucleotides are passed as codes (`rs::Code`, from `data.code("A")` or `data.encode(...)`).
+  `size`, `n1`, `n2` and `bulge_run` are numbers of nucleotides. The first ten arguments of
+  `internal_loop_energy` are those of `vrna_E_internal`, with two codes for a pair instead of
+  a pair type.
+- The `beyond_...` arguments are nucleotides next to the loop that efn2 looks at too: the end
+  of a helix depends on its next pair, and a hairpin closed by G-U gets a bonus after two Gs.
+  For the pair that closes a loop, `rs::kNoNucleotide` stands for one that does not exist,
+  such as the one before the first nucleotide of a strand.
+- Exterior and multibranch loops are given as a whole, as a list of `rs::LoopElement` in 5' to
+  3' order, because efn2 picks the best way for helices and nucleotides to stack over the whole
+  loop: `unpaired(x)`, `helix(p, q, after_p, before_q)`, and `other(p, q)` for a branch that
+  is not a helix, such as a pseudoknot. Such a branch has no helix end and nothing stacks on
+  it, which is a rule of ThermoRNA, not of efn2.
+- Energies are `int`s in tenths of kcal/mol, like the tables. The arguments are not checked.
+- A loop RNAstructure does not allow (a pair it cannot form, a hairpin of fewer than three
+  nucleotides, N where a table has no entry) gives `rs::kInfiniteEnergy`. efn2 itself adds such
+  entries up like numbers and prints energies around 1400 kcal/mol.
+- `rule` is `rs::MultibranchRule::Efn2` (the default) or `Simple`, which is `efn2 --simple`.
+- `coaxial` is `rs::CoaxialStacking::On` (the default, as in efn2) or `Off`, which leaves out
+  the helices that stack on each other (see "Without coaxial stacking" below).
+- Not included: what efn2 adds for a structure of two strands, such as the intermolecular
+  initiation (`data.misc().init`).
+
+The sum over the loops of a structure without pseudoknots is efn2's total energy. `efn2()` in
+`test/test_rnastructure_eval.cpp` does this for a dot-bracket structure, and shows how to
+gather each function's arguments from an encoded sequence.
+
+#### Exterior and multibranch loops, stem by stem
+
+In RNAstructure's model the end of a helix does at most one of these: nothing, stack with the
+nucleotide before it (5' dangle), with the one after it (3' dangle), with both (terminal
+mismatch), or stack on the helix next to it (coaxial stack). A nucleotide stacks only once. So
+these loops are not a plain sum over their stems, as they are in ViennaRNA with `-d2`: the
+energy is the lowest sum over the choices. `exterior_energy` and `multibranch_energy` make the
+choice for a whole loop. A folding algorithm makes it in its recursion, with the energy of one
+stem and one choice at a time:
+
+| `rs::`                                                                               | what                                                              |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| `exterior_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)`              | helix end + dangle or mismatch, like `vrna_E_exterior_stem`       |
+| `multibranch_stem_energy(p, q, after_p, before_q, n5, n3, stacking, data)`           | the same + the penalty per helix, like `vrna_E_multibranch_stem`  |
+| `coaxial_stack_energy(p1, q1, p2, q2, data)`                                         | two helices next to each other                                    |
+| `coaxial_stack_mismatch5_energy(p1, q1, p2, q2, before, between, data)`              | two helices one nucleotide apart, mismatch before the first       |
+| `coaxial_stack_mismatch3_energy(p1, q1, p2, q2, between, after, data)`               | the same, mismatch after the second                               |
+| `data.misc().efn2a`, `data.misc().efn2b`                                             | multibranch loop: offset, and penalty per unpaired nucleotide     |
+
+- A helix is given as the loop sees it, going through the loop 5' to 3': the loop reaches it at
+  `p` and leaves it at `q`. `after_p` and `before_q` are on the side of the helix (its next
+  pair if it has one), `n5` and `n3` are the nucleotides before `p` and after `q` in the loop.
+  For a branch, `p` is the 5' nucleotide of its first pair. For the pair `i`-`j` that closes a
+  multibranch loop, `p` is `j` and `q` is `i`.
+- `stacking` says which of `n5` and `n3` stack on the helix: `rs::Stacking::None`, `Dangle5`,
+  `Dangle3` or `Mismatch`. Two helices that stack coaxially have `None`.
+- The lowest sum of these is efn2's energy of an exterior loop. For a multibranch loop it is
+  the energy by the simple rule, the one RNAstructure's folding algorithms use. efn2's default
+  adds three terms that depend on the loop as a whole (a logarithm beyond 8 unpaired
+  nucleotides, an asymmetry penalty and a strain penalty), so it only exists for a whole loop.
+
+```c++
+// The multibranch loop of the example above by the simple rule, from its stems. Seen from
+// inside, the closing pair 1-26 is a helix that the loop reaches at 26 and leaves at 1.
+using rs::Stacking;
+int closing = rs::multibranch_stem_energy(s[26], s[1], s[27], s[0], s[25], s[2], Stacking::None, data);
+int first   = rs::multibranch_stem_energy(s[2], s[13], s[3], s[12], s[1], s[14], Stacking::None, data);
+int second  = rs::multibranch_stem_energy(s[14], s[25], s[15], s[24], s[13], s[26], Stacking::None, data);
+int stacked = rs::coaxial_stack_energy(s[2], s[13], s[14], s[25], data);  // the two branches
+int simple  = data.misc().efn2a + closing + first + second + stacked;     // efn2 -w -s: 5.1
+// = rs::multibranch_energy(s[1], s[26], s[0], s[27], {...}, data, rs::MultibranchRule::Simple)
+
+// Without coaxial stacking the two branches do not stack, and there is no unpaired
+// nucleotide to stack on a helix instead:                                            7.5
+int without = data.misc().efn2a + closing + first + second;
+// = rs::multibranch_energy(s[1], s[26], s[0], s[27], {...}, data, rs::MultibranchRule::Simple,
+//                          rs::CoaxialStacking::Off)
+```
+
+**Without coaxial stacking.** With `rs::CoaxialStacking::Off`, `exterior_energy` and
+`multibranch_energy` leave the last of the choices out: helices do not stack on each other,
+and each helix takes nothing, a dangling end or a terminal mismatch. That is the scheme of
+ViennaRNA's dangle model 1 (`-d1`), with RNAstructure's parameters. With
+`rs::MultibranchRule::Simple` it is the energy RNAstructure's own folding minimizes when its
+coaxial stacking is disabled (`Fold --disablecoax`), and the energy a recursion finds that
+uses the two stem functions and no coaxial stack. efn2 itself always considers coaxial stacks,
+so it has no option that prints this energy.
+
 ### What is loaded
 
 The same files, in the same order, with the same post-processing as `datatable::opendat()`:
@@ -186,7 +313,8 @@ cmake --build build -j
 ctest --test-dir build
 ```
 
-The tests use the sets in `params/RNAstructure`. `-DCMAKE_BUILD_TYPE=Debug` builds them with
-AddressSanitizer and UBSan. With `-DTHERMORNA_RNASTRUCTURE_SOURCE=/path/to/RNAstructure` (its
+The tests use the sets in `params/RNAstructure`. The energy functions are compared with what
+`efn2 -w` prints for each loop of about 170 structures. `-DCMAKE_BUILD_TYPE=Debug` builds them
+with AddressSanitizer and UBSan. With `-DTHERMORNA_RNASTRUCTURE_SOURCE=/path/to/RNAstructure` (its
 source tree), `RNAstructureParity` also compares every table entry with RNAstructure's own
 loader (see `tools/rnastructure_parity`).

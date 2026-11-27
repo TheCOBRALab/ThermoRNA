@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(ThermoRNA
-    VERSION 0.2.1
+    VERSION 0.2.2
     LANGUAGES CXX
     DESCRIPTION "ThermoRNA: A C++ library for processing thermodynamic data of RNA structures and their energy calculations."
 )
@@ -17,7 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # option(THERMORNA_KNOTERGY "Build the Knotergy components" ON)
 option(THERMORNA_VIENNARNA "Build the ViennaRNA components" ON)
-option(THERMORNA_RNASTRUCTURE "Build the RNAstructure parameter loader (efn2 data tables)" OFF)
+option(THERMORNA_RNASTRUCTURE "Build the RNAstructure parameter loader and energy functions (efn2)" OFF)
 
 if(NOT THERMORNA_VIENNARNA)
     message(FATAL_ERROR "THERMORNA_VIENNARNA must be enabled.")
@@ -97,8 +97,8 @@ if(THERMORNA_RNASTRUCTURE)
     file(GLOB_RECURSE ThermoRNARNAstructureSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/RNAstructure/*.cpp"
     )
-    # No fused multiply-add, so that rounding of parameter values and temperature rescaling is
-    # the same on every platform (RNAstructure on x86-64 does not fuse them either).
+    # No fused multiply-add, so that rounding of parameter values, temperature rescaling and
+    # energies is the same on every platform (RNAstructure on x86-64 does not fuse them either).
     set_source_files_properties(${ThermoRNARNAstructureSources} PROPERTIES
         COMPILE_OPTIONS "-ffp-contract=off")
     list(APPEND ThermoRNASources ${ThermoRNARNAstructureSources})
@@ -199,7 +199,7 @@ if(THERMORNA_BUILD_TESTS AND THERMORNA_RNASTRUCTURE)
     endif()
 
     enable_testing()
-    add_executable(ThermoRNATests test/test_rnastructure.cpp)
+    add_executable(ThermoRNATests test/test_rnastructure.cpp test/test_rnastructure_eval.cpp)
     target_link_libraries(ThermoRNATests PRIVATE ThermoRNALib GTest::gtest_main)
     target_compile_definitions(ThermoRNATests PRIVATE
         THERMORNA_TEST_PARAMS="${CMAKE_CURRENT_SOURCE_DIR}/params/RNAstructure")
